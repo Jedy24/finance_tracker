@@ -80,7 +80,7 @@ class FinanceTrackerScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      padding: EdgeInsets.symmetric(vertical: 15.0),
                       child: Text(
                         'Get Started',
                         style: TextStyle(
