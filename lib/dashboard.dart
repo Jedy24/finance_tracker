@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'balance.dart';
 import 'add_expenses.dart';
+import 'payment.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
@@ -88,7 +89,12 @@ class DashboardScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => PaymentScreen()),
+                                  );
+                                },
                                 child: Text(
                                   'Pay',
                                   style: GoogleFonts.inter(
