@@ -6,6 +6,7 @@ class BalancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -44,6 +45,7 @@ class BalancePage extends StatelessWidget {
 
               // Card for Budget Information
               Card(
+                color: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -105,6 +107,7 @@ class BalancePage extends StatelessWidget {
 
               // Pie Chart and Legend
               Card(
+                color: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

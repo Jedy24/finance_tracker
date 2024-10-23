@@ -8,6 +8,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -16,7 +17,7 @@ class DashboardScreen extends StatelessWidget {
             children: [
               // Header dengan teks Hello dan Home, serta tombol Add dan Pay
               Padding(
-                padding: const EdgeInsets.only(top: 15.0), // Jarak dari atas
+                padding: const EdgeInsets.only(top: 40.0), // Jarak dari atas
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -118,6 +119,7 @@ class DashboardScreen extends StatelessWidget {
               // Total pengeluaran bulanan dan harian (tengah layar)
               Center(
                 child: Card(
+                  color: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -176,6 +178,7 @@ class DashboardScreen extends StatelessWidget {
 
               // Grafik pengeluaran
               Card(
+                color: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -215,6 +218,7 @@ class DashboardScreen extends StatelessWidget {
 
               // Riwayat pengeluaran tertinggi dan tombol "See all"
               Card(
+                color: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
