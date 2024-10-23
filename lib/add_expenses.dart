@@ -34,38 +34,94 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
       body: Column(
         children: [
           // Custom Header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Add New Expenses',
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        'Add New Expenses',
+                        style: GoogleFonts.inter(
+                          textStyle: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      // Tambahkan button "Create New Type" disini
+                      TextButton(
+                        onPressed: () {
+                          // Logika untuk menambahkan tipe baru
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              TextEditingController _newTypeController =
+                                  TextEditingController();
+                              return AlertDialog(
+                                title: const Text('Create New Type'),
+                                content: TextField(
+                                  controller: _newTypeController,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter new type',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Tambahkan tipe baru ke dropdown dan tutup dialog
+                                      setState(() {
+                                        if (_newTypeController
+                                            .text.isNotEmpty) {
+                                          // Update logic here to manage dynamic types
+                                        }
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Add'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text(
+                          'Create New Type',
+                          style: GoogleFonts.inter(
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF007AFF),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.black),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.black),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
           Expanded(
             child: Padding(
@@ -90,7 +146,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 15),
                     ),
                     hint: const Text('Select Type'),
                     onChanged: (String? newValue) {
@@ -126,7 +183,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 15),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -150,7 +208,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 15),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -178,7 +237,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 15),
                         ),
                       ),
                     ),
@@ -188,6 +248,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                   // Button "Create"
                   Center(
                     child: Container(
+                      alignment: Alignment.bottomCenter,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
