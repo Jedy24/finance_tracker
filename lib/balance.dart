@@ -53,13 +53,24 @@ class BalancePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'THIS MONTHLY BUDGET [BULAN]',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'THIS MONTHLY BUDGET [BULAN]',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          // Visa image
+                          Image.asset(
+                            'assets/images/visa.png', 
+                            height: 56,
+                            width: 37, 
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 32),
 
