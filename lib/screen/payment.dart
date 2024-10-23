@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:finance_tracker/components/custom_button.dart';
 import 'dashboard.dart'; 
 
 class PaymentScreen extends StatefulWidget {
@@ -37,7 +36,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
