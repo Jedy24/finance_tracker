@@ -5,6 +5,8 @@ import 'add_expenses.dart';
 import 'payment.dart';
 
 class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
