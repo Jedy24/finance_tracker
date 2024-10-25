@@ -173,29 +173,6 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Input for "Name"
-                    Text(
-                      'Name',
-                      style: GoogleFonts.inter(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        hintText: 'Input Name',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
                     // Input for "Price"
                     Text(
                       'Price',
