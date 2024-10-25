@@ -10,7 +10,6 @@ class AddExpensesScreen extends StatefulWidget {
 class _AddExpensesScreenState extends State<AddExpensesScreen> {
   String? _selectedType; // Dropdown value
   DateTime? _selectedDate; // DatePicker value
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
   // Function to show DatePicker
