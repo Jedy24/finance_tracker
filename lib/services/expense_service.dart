@@ -51,3 +51,29 @@ Future<List<Map<String, dynamic>>> getHighestExpenses() async {
 
   return querySnapshot.docs.map((doc) => doc.data()).toList();
 }
+
+Future<Map<String, double>> getExpensesByCategory() async {
+  final now = DateTime.now();
+  final startOfMonth = DateTime(now.year, now.month, 1);
+  final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+  final querySnapshot = await FirebaseFirestore.instance
+      .collection('expenses')
+      .where('date', isGreaterThanOrEqualTo: startOfMonth)
+      .where('date', isLessThanOrEqualTo: endOfMonth)
+      .get();
+
+  Map<String, double> categoryTotals = {};
+  for (var doc in querySnapshot.docs) {
+    final category = doc['category'];
+    final amount = (doc['amount'] as num).toDouble();
+    if (categoryTotals.containsKey(category)) {
+      categoryTotals[category] = categoryTotals[category]! + amount;
+    } else {
+      categoryTotals[category] = amount;
+    }
+  }
+  return categoryTotals;
+}
+
+

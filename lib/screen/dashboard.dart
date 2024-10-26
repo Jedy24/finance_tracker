@@ -6,6 +6,7 @@ import 'payment.dart';
 import 'package:intl/intl.dart';
 import 'package:finance_tracker/services/expense_service.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
+import 'package:finance_tracker/components/custom_chart.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -140,7 +141,7 @@ class DashboardScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 1),
                         FutureBuilder<double>(
                           future: getMonthlyExpenses(),
                           builder: (context, snapshot) {
@@ -220,23 +221,26 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      // Placeholder untuk Pie Chart
-                      Center(
-                        child: Container(
-                          height: 150,
-                          width: 150,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey, // Placeholder, ganti dengan chart
-                          ),
-                        ),
+                      const SizedBox(height: 24),
+
+                      FutureBuilder<Map<String, double>>(
+                        future: getExpensesByCategory(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+
+                          final data = snapshot.data ?? {};
+                          return ExpenseChart(data: data);
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
 
               // Riwayat pengeluaran tertinggi dan tombol "See all"
               Card(
@@ -288,6 +292,7 @@ class DashboardScreen extends StatelessWidget {
                         ],
                       ),
 
+                      // History
                       FutureBuilder<List<Map<String, dynamic>>>(
                         future: getHighestExpenses(),
                         builder: (context, snapshot) {
@@ -297,7 +302,7 @@ class DashboardScreen extends StatelessWidget {
                           if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           }
-                          final expenses = snapshot.data?.take(3).toList() ?? []; // Menampilkan maksimal 3 item
+                          final expenses = snapshot.data?.take(3).toList() ?? [];
                           return ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -309,7 +314,7 @@ class DashboardScreen extends StatelessWidget {
                                 dense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                                 title: Text(
-                                  expense['category'].toString().split(' ').map((word) => word[0].toUpperCase() + word.substring(1)).join(' '), // Huruf kapital di awal kata
+                                  expense['category'].toString().split(' ').map((word) => word[0].toUpperCase() + word.substring(1)).join(' '),
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
