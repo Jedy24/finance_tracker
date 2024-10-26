@@ -314,7 +314,7 @@ class DashboardScreen extends StatelessWidget {
                                 dense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                                 title: Text(
-                                  expense['category'].toString().split(' ').map((word) => word[0].toUpperCase() + word.substring(1)).join(' '),
+                                  capitalize(expense['category']),
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
