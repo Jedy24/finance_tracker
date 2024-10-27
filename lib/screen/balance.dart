@@ -192,41 +192,59 @@ class _BalancePageState extends State<BalancePage> {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
+
                   final expenses = snapshot.data ?? [];
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    itemCount: expenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = expenses[index];
-                      return ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                        title: Text(
-                          capitalize(expense['category']),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          "Detail History",
+                          style: TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
-                        subtitle: Text(
-                          DateFormat('d MMM yyyy').format(expense['date'].toDate()),
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF8E8E93),
-                          ),
-                        ),
-                        trailing: Text(
-                          CurrencyFormatter.formatCurrency(expense['amount']),
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 17, 
-                          ),
-                        ),
-                      );
-                    },
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: expenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = expenses[index];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                            title: Text(
+                              capitalize(expense['category']),
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              DateFormat('d MMM yyyy').format(expense['date'].toDate()),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF8E8E93),
+                              ),
+                            ),
+                            trailing: Text(
+                              CurrencyFormatter.formatCurrency(expense['amount']),
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontSize: 17, 
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   );
                 },
               ),
