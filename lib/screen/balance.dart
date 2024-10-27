@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dashboard.dart';
+import 'package:finance_tracker/components/custom_chart.dart';
+import 'package:finance_tracker/services/expense_service.dart';
+import 'package:finance_tracker/components/currency_formatter.dart';
+import 'package:finance_tracker/services/monthly_balance.dart';
+import 'package:intl/intl.dart';
 
-class BalancePage extends StatelessWidget {
+class BalancePage extends StatefulWidget {
+  const BalancePage({super.key});
+
+  @override
+  _BalancePageState createState() => _BalancePageState();
+}
+
+class _BalancePageState extends State<BalancePage> {
+  double? balance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    final finalBalance = await MonthlyBalanceService.fetchBalance();
+    setState(() {
+      balance = finalBalance;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentMonth = DateTime.now().month;
+    final monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][currentMonth - 1].toUpperCase();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -12,29 +42,31 @@ class BalancePage extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: ListView(
             children: [
-              // Header
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => DashboardScreen()),
-                      );
-                    },
-                  ),
-                  const Text(
-                    "Back",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+              Padding(
+                padding: const EdgeInsets.only(top: 40), // Menambahkan jarak dari atas
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                        );
+                      },
                     ),
-                  ),
-                ],
+                    const Text(
+                      "Back",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
-              // Title Wallet
+              
               Text(
                 'Wallet',
                 style: GoogleFonts.inter(
@@ -43,7 +75,6 @@ class BalancePage extends StatelessWidget {
                 ),
               ),
 
-              // Card for Budget Information
               Card(
                 color: Colors.white,
                 elevation: 0,
@@ -59,33 +90,71 @@ class BalancePage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'THIS MONTHLY BUDGET [BULAN]',
+                            'BALANCE $monthName',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          // Visa image
-                          Image.asset(
-                            'assets/images/visa.png', 
-                            height: 56,
-                            width: 37, 
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () async {
+                              double currentBalance = await MonthlyBalanceService.getMonthlyBalance();
+
+                              final TextEditingController controller = TextEditingController(
+                                text: currentBalance.toString(),
+                              );
+
+                              double? newBalance = await showDialog<double>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text("Edit Balance"),
+                                    content: TextField(
+                                      controller: controller,
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        prefixText: 'Rp. ',
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text("Cancel"),
+                                        onPressed: () => Navigator.pop(context),
+                                      ),
+                                      TextButton(
+                                        child: const Text("Save"),
+                                        onPressed: () {
+                                          final newValue = double.tryParse(controller.text) ?? 0;
+                                          Navigator.pop(context, newValue);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              if (newBalance != null) {
+                                await MonthlyBalanceService.updateMonthlyBalance(newBalance);
+                                await _loadBalance();
+                              }
+                            },
                           ),
                         ],
                       ),
                       const SizedBox(height: 32),
-
-                      Text(
-                        'RP. 500.000',
-                        style: GoogleFonts.inter(
-                          fontSize: 32,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
+                      if (balance != null) ...[
+                        Text(
+                          CurrencyFormatter.formatCurrency(balance!),
+                          style: GoogleFonts.inter(
+                            fontSize: 32,
+                            color: balance! >= 0 ? Colors.blue : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
+                      ] else
+                        const CircularProgressIndicator(),
                       const SizedBox(height: 32),
-
                       Text(
                         'JEVON IVANDER JUANDY',
                         style: GoogleFonts.inter(
@@ -94,10 +163,9 @@ class BalancePage extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 10),
                       const Divider(
-                        color: Colors.grey, // Warna abu-abu
-                        thickness: 5, // Ketebalan garis
+                        color: Colors.grey,
+                        thickness: 5,
                       ),
                     ],
                   ),
@@ -105,118 +173,69 @@ class BalancePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Pie Chart and Legend
-              Card(
-                color: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Placeholder for Pie Chart
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildLegendItem(const Color(0xFFFF2D55), 'Sembako'),
-                          _buildLegendItem(Colors.blue, 'Makanan'),
-                          _buildLegendItem(Colors.grey, 'Income'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              // Chart Section
+              FutureBuilder<Map<String, double>>(
+                future: getExpensesByCategory(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const CircularProgressIndicator();
+
+                  final data = snapshot.data!;
+                  return ExpenseChart(data: data); 
+                },
               ),
               const SizedBox(height: 16),
-              // Transactions using ListTile
-              ListTile(
-                leading: Container(
-                  width: 24,
-                  height: 24,
-                  color: Colors.grey,
-                ),
-                title: Text(
-                  'Income',
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                subtitle: Text(
-                  '5 Mar 2020',
-                  style: GoogleFonts.inter(),
-                ),
-                trailing: Text(
-                  '+\$50.00',
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Container(
-                  width: 24,
-                  height: 24,
-                  color: Colors.blue,
-                ),
-                title: Text(
-                  'Makanan',
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                subtitle: Text(
-                  '10 Mar 2020',
-                  style: GoogleFonts.inter(),
-                ),
-                trailing: Text(
-                  '-\$799.00',
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue
-                    ),
-                  ),
-                ),
+
+              // Transactions using ListTile from Firebase data
+              FutureBuilder<List<Map<String, dynamic>>>( 
+                future: getHighestExpenses(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  final expenses = snapshot.data ?? [];
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: expenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = expenses[index];
+                      return ListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                        title: Text(
+                          capitalize(expense['category']),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          DateFormat('d MMM yyyy').format(expense['date'].toDate()),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF8E8E93),
+                          ),
+                        ),
+                        trailing: Text(
+                          CurrencyFormatter.formatCurrency(expense['amount']),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 17, 
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Widget for Legend
-  Widget _buildLegendItem(Color color, String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Container(width: 10, height: 10, color: color),
-          const SizedBox(width: 4),
-          Text(text, style: GoogleFonts.inter(fontSize: 12)),
-        ],
       ),
     );
   }
