@@ -11,6 +11,8 @@ Map<String, Color> categoryColors = {
   'Drink': Colors.blue,
   'Clothes': Colors.green,
   'Gadget': Colors.orange,
+  'Installment': Colors.black,
+  'Perfume': Colors.pink,
   // Tambahkan kategori lain dengan warna sesuai kebutuhan
 };
 
