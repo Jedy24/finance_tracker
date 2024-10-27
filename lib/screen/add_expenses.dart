@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:finance_tracker/components/custom_button.dart';
+import 'package:finance_tracker/components/custom_categories.dart';
 
 class AddExpensesScreen extends StatefulWidget {
   @override
@@ -8,11 +9,23 @@ class AddExpensesScreen extends StatefulWidget {
 }
 
 class _AddExpensesScreenState extends State<AddExpensesScreen> {
-  String? _selectedType; // Dropdown value
-  DateTime? _selectedDate; // DatePicker value
+  String? _selectedType;
+  DateTime? _selectedDate;
   final TextEditingController _priceController = TextEditingController();
+  final CustomCategories _customCategories = CustomCategories();
+  List<String> _categories = [];
 
-  // Function to show DatePicker
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    _categories = await _customCategories.getCategories();
+    setState(() {});
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -27,117 +40,135 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
     }
   }
 
+  void _resetFields() {
+    setState(() {
+      _selectedType = null;
+      _selectedDate = null;
+      _priceController.clear();
+    });
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _addNewCategory(String category) async {
+    if (category.trim().isEmpty) return;
+    
+    try {
+      await _customCategories.addNewCategory(category);
+      await _loadCategories();
+      _showSnackBar('Success create new category');
+    } catch (e) {
+      _showSnackBar('Failed to create new category');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          // Custom Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             decoration: const BoxDecoration(
               color: Colors.white,
             ),
             child: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        // Add padding above "Add New Expenses"
-                        Padding(
-                          padding: const EdgeInsets.only(top: 40.0), // Adjust the value as needed
-                          child: Text(
-                            'Add New Expenses',
-                            style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40.0),
+                        child: Text(
+                          'Add New Expenses',
+                          style: GoogleFonts.inter(
+                            textStyle: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                         ),
-                        // Tambahkan button "Create New Type" disini
-                        TextButton(
-                          onPressed: () {
-                            // Logika untuk menambahkan tipe baru
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                TextEditingController _newTypeController =
-                                    TextEditingController();
-                                return AlertDialog(
-                                  title: const Text('Create New Type'),
-                                  content: TextField(
-                                    controller: _newTypeController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter new type',
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        // Tambahkan tipe baru ke dropdown dan tutup dialog
-                                        setState(() {
-                                          if (_newTypeController.text.isNotEmpty) {
-                                            // Update logic here to manage dynamic types
-                                          }
-                                        });
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Add'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: Text(
-                            'Create New Type',
-                            style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF007AFF),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0), // Adjust the value as needed
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.black),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
                       ),
+                      TextButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              TextEditingController _newTypeController = TextEditingController();
+                              return AlertDialog(
+                                title: const Text('Create New Type'),
+                                content: TextField(
+                                  controller: _newTypeController,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter new type',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      if (_newTypeController.text.isNotEmpty) {
+                                        await _addNewCategory(_newTypeController.text);
+                                        _newTypeController.clear();
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                    child: const Text('Add'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text(
+                          'Create New Type',
+                          style: GoogleFonts.inter(
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF007AFF),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
           ),
 
           Expanded(
             child: Container(
-              color: Colors.white, // Set the background color to white
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Dropdown for "Type"
                     Text(
                       'Type',
                       style: GoogleFonts.inter(
@@ -162,8 +193,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           _selectedType = newValue;
                         });
                       },
-                      items: <String>['Food', 'Transport', 'Entertainment', 'Other']
-                          .map<DropdownMenuItem<String>>((String value) {
+                      items: _categories.map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -172,7 +202,6 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Input for "Price"
                     Text(
                       'Price',
                       style: GoogleFonts.inter(
@@ -196,7 +225,6 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // DatePicker for "Date"
                     Text(
                       'Date',
                       style: GoogleFonts.inter(
@@ -226,12 +254,35 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Button "Create"
                     Center(
                       child: CustomButton(
                         text: 'Create',
-                        onPressed: () {
-                          // Logic to submit data or save expenses
+                        onPressed: () async {
+                          // Validasi semua field harus diisi
+                          if (_selectedType == null || 
+                              _priceController.text.isEmpty ||
+                              _selectedDate == null) {
+                            _showSnackBar('Please fill all fields');
+                            return;
+                          }
+
+                          try {
+                            double price = double.parse(_priceController.text);
+                            await _customCategories.addExpense(
+                              price,
+                              _selectedType!,
+                              _selectedDate!,
+                            );
+                            
+                            // Tampilkan snackbar sukses
+                            _showSnackBar('Success create new expenses');
+                            
+                            // Reset semua field
+                            _resetFields();
+                            
+                          } catch (e) {
+                            _showSnackBar('Failed to create expense');
+                          }
                         },
                       ),
                     ),
