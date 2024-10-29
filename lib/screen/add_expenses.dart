@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:finance_tracker/components/custom_button.dart';
 import 'package:finance_tracker/components/custom_categories.dart';
+import 'package:finance_tracker/components/currency_formatter.dart';
 
 class AddExpensesScreen extends StatefulWidget {
+  const AddExpensesScreen({super.key});
+
   @override
   _AddExpensesScreenState createState() => _AddExpensesScreenState();
 }
@@ -19,6 +22,12 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
   void initState() {
     super.initState();
     _loadCategories();
+  }
+
+  String _formatCurrency(String value) {
+    final unformattedValue = value.replaceAll(RegExp(r'[Rp.,]'), '');
+    final amount = double.tryParse(unformattedValue) ?? 0;
+    return CurrencyFormatter.formatCurrency(amount);
   }
 
   Future<void> _loadCategories() async {
@@ -48,12 +57,38 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
     });
   }
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isError ? Colors.red.withOpacity(0.9) : Colors.green.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(isError ? Icons.error_outline : Icons.check_circle_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                message,
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        margin: EdgeInsets.only(
+          top: 32,
+          bottom: MediaQuery.of(context).size.height - 100,
+          right: 20,
+          left: 20,
+        ),
       ),
     );
   }
@@ -66,7 +101,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
       await _loadCategories();
       _showSnackBar('Success create new category');
     } catch (e) {
-      _showSnackBar('Failed to create new category');
+      _showSnackBar('Failed to create new category',  isError: true);
     }
   }
 
@@ -222,6 +257,13 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
+                      onChanged: (value) {
+                        final formattedValue = _formatCurrency(value);
+                        _priceController.value = TextEditingValue(
+                          text: formattedValue,
+                          selection: TextSelection.collapsed(offset: formattedValue.length),
+                        );
+                      },
                     ),
                     const SizedBox(height: 16),
 
@@ -262,26 +304,21 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           if (_selectedType == null || 
                               _priceController.text.isEmpty ||
                               _selectedDate == null) {
-                            _showSnackBar('Please fill all fields');
+                            _showSnackBar('Please fill all fields', isError: true);
                             return;
                           }
 
                           try {
-                            double price = double.parse(_priceController.text);
+                            double price = double.parse(_priceController.text.replaceAll(RegExp(r'[^\d]'), ''));
                             await _customCategories.addExpense(
                               price,
                               _selectedType!,
                               _selectedDate!,
                             );
-                            
-                            // Tampilkan snackbar sukses
                             _showSnackBar('Success create new expenses');
-                            
-                            // Reset semua field
                             _resetFields();
-                            
                           } catch (e) {
-                            _showSnackBar('Failed to create expense');
+                            _showSnackBar('Failed to create expense', isError: true);
                           }
                         },
                       ),
