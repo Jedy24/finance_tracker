@@ -4,6 +4,8 @@ import 'dashboard.dart';
 import 'package:finance_tracker/components/custom_button.dart';
 
 class FinanceTrackerScreen extends StatelessWidget {
+  const FinanceTrackerScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
