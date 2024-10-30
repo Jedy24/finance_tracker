@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InstallmentService {
+  // Calculate the total remaining installment
   static Future<double> calculateTotalInstallment() async {
     final querySnapshot = await FirebaseFirestore.instance
-        .collection('expenses')
-        .where('category', isEqualTo: 'Installment')
+        .collection('installments')
+        .where('isPaid', isEqualTo: false) 
         .get();
 
     double totalInstallment = 0.0;
@@ -14,23 +15,34 @@ class InstallmentService {
     return totalInstallment;
   }
 
+  // Function to pay installment and log it as an expense
   static Future<void> payInstallment(double amount) async {
     final querySnapshot = await FirebaseFirestore.instance
-        .collection('expenses')
-        .where('category', isEqualTo: 'Installment')
+        .collection('installments')
+        .where('isPaid', isEqualTo: false) 
         .get();
 
-    // Reduce the amount across all installment documents
     double remainingAmount = amount;
     for (var doc in querySnapshot.docs) {
       final currentAmount = doc['amount'];
-      if (remainingAmount > currentAmount) {
+      if (remainingAmount >= currentAmount) {
         remainingAmount -= currentAmount;
-        await doc.reference.update({'amount': 0.0});
+        await doc.reference.update({'amount': 0.0, 'isPaid': true});
+
+        await _logExpense(currentAmount);
       } else {
         await doc.reference.update({'amount': currentAmount - remainingAmount});
+        await _logExpense(remainingAmount);
         break;
       }
     }
+  }
+
+  static Future<void> _logExpense(double amount) async {
+    await FirebaseFirestore.instance.collection('expenses').add({
+      'amount': amount,
+      'category': 'Installment',
+      'date': Timestamp.now(),
+    });
   }
 }
