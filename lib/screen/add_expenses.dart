@@ -1,8 +1,10 @@
+import 'package:finance_tracker/components/custom_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:finance_tracker/components/custom_button.dart';
 import 'package:finance_tracker/components/custom_categories.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class AddExpensesScreen extends StatefulWidget {
   const AddExpensesScreen({super.key});
@@ -17,11 +19,27 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
   final TextEditingController _priceController = TextEditingController();
   final CustomCategories _customCategories = CustomCategories();
   List<String> _categories = [];
+  Color _selectedColor = Colors.grey;
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
+  }
+
+  Future<void> _addNewCategory(String category, Color color) async {
+    if (category.trim().isEmpty) return;
+
+    try {
+      await _customCategories.addNewCategory(category);
+      setState(() {
+        categoryColors[category] = color;
+      });
+      await _loadCategories();
+      _showSnackBar('Successfully created new category');
+    } catch (e) {
+      _showSnackBar('Failed to create new category', isError: true);
+    }
   }
 
   String _formatCurrency(String value) {
@@ -70,11 +88,14 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
             children: [
               Icon(isError ? Icons.error_outline : Icons.check_circle_outline, color: Colors.white),
               const SizedBox(width: 8),
-              Text(
-                message,
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 16,
+              Expanded(
+                child: Text(
+                  message,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -83,26 +104,13 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        margin: EdgeInsets.only(
-          top: 32,
-          bottom: MediaQuery.of(context).size.height - 100,
+        margin: const EdgeInsets.only(
+          bottom: 20,
           right: 20,
           left: 20,
         ),
       ),
     );
-  }
-
-  Future<void> _addNewCategory(String category) async {
-    if (category.trim().isEmpty) return;
-    
-    try {
-      await _customCategories.addNewCategory(category);
-      await _loadCategories();
-      _showSnackBar('Success create new category');
-    } catch (e) {
-      _showSnackBar('Failed to create new category',  isError: true);
-    }
   }
 
   @override
@@ -141,30 +149,76 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                             context: context,
                             builder: (context) {
                               TextEditingController _newTypeController = TextEditingController();
-                              return AlertDialog(
-                                title: const Text('Create New Type'),
-                                content: TextField(
-                                  controller: _newTypeController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Enter new type',
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      if (_newTypeController.text.isNotEmpty) {
-                                        await _addNewCategory(_newTypeController.text);
-                                        _newTypeController.clear();
-                                        Navigator.of(context).pop();
-                                      }
-                                    },
-                                    child: const Text('Add'),
-                                  ),
-                                ],
+                              return StatefulBuilder(
+                                builder: (context, setState) {
+                                  return AlertDialog(
+                                    title: const Text('Create New Type'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: _newTypeController,
+                                          decoration: const InputDecoration(
+                                            hintText: 'Enter new type',
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        // Color picker section
+                                        Text('Select Color', style: GoogleFonts.inter(fontSize: 14)),
+                                        const SizedBox(height: 8),
+                                        GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: const Text('Pick a color'),
+                                                  content: SingleChildScrollView(
+                                                    child: ColorPicker(
+                                                      pickerColor: _selectedColor,
+                                                      onColorChanged: (color) {
+                                                        setState(() => _selectedColor = color);
+                                                      },
+                                                    ),
+                                                  ),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      child: const Text('Select'),
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: Container(
+                                            width: 100,
+                                            height: 30,
+                                            color: _selectedColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          if (_newTypeController.text.isNotEmpty) {
+                                            await _addNewCategory(_newTypeController.text, _selectedColor);
+                                            _newTypeController.clear();
+                                            Navigator.of(context).pop();
+                                          }
+                                        },
+                                        child: const Text('Add'),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             },
                           );

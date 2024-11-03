@@ -13,7 +13,10 @@ Map<String, Color> categoryColors = {
   'Gadget': Colors.orange,
   'Installment': Colors.black,
   'Perfume': Colors.pink,
-  // Tambahkan kategori lain dengan warna sesuai kebutuhan
+  'Games': Colors.lightGreenAccent,
+  'Billiard': Colors.teal,
+  'Parking Fee': Colors.cyan,
+  'Gas': Colors.limeAccent,
 };
 
 class ExpenseChart extends StatelessWidget {
