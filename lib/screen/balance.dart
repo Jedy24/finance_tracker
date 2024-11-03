@@ -6,6 +6,7 @@ import 'package:finance_tracker/services/expense_service.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
 import 'package:finance_tracker/services/monthly_balance.dart';
 import 'package:intl/intl.dart';
+import 'package:finance_tracker/pages/all_expenses_page.dart';
 
 class BalancePage extends StatefulWidget {
   const BalancePage({super.key});
@@ -182,8 +183,43 @@ class _BalancePageState extends State<BalancePage> {
               ),
               const SizedBox(height: 16),
 
-              // Transactions using ListTile from Firebase data
-              FutureBuilder<List<Map<String, dynamic>>>( 
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Detail History",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AllExpensesPage(month: currentMonth),
+                        ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      alignment: Alignment.centerRight,
+                    ),
+                    child: const Text(
+                      "See All",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              FutureBuilder<List<Map<String, dynamic>>>(
                 future: getHighestExpenses(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -195,56 +231,52 @@ class _BalancePageState extends State<BalancePage> {
 
                   final expenses = snapshot.data ?? [];
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          "Detail History",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: expenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = expenses[index];
+                      return ListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                        title: Text(
+                          capitalize(expense['category']),
+                          style: const TextStyle(
                             color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemCount: expenses.length,
-                        itemBuilder: (context, index) {
-                          final expense = expenses[index];
-                          return ListTile(
-                            dense: true,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                            title: Text(
-                              capitalize(expense['category']),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              expense['name'],  // Menampilkan nama pengeluaran
                               style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.black87,
                               ),
                             ),
-                            subtitle: Text(
+                            Text(
                               DateFormat('d MMM yyyy').format(expense['date'].toDate()),
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Color(0xFF8E8E93),
                               ),
                             ),
-                            trailing: Text(
-                              CurrencyFormatter.formatCurrency(expense['amount']),
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                fontSize: 17, 
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                          ],
+                        ),
+                        trailing: Text(
+                          CurrencyFormatter.formatCurrency(expense['amount']),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 17, 
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
