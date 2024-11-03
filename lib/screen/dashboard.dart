@@ -300,7 +300,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                   alignment: Alignment.centerRight,
                                 ),
                                 child: Text(
-                                  'See all',
+                                  'See More',
                                   style: GoogleFonts.inter(
                                     textStyle: const TextStyle(
                                       color: Colors.black,
