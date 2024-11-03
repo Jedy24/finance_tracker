@@ -6,18 +6,7 @@ String capitalize(String input) {
   return input.split(' ').map((str) => str[0].toUpperCase() + str.substring(1)).join(' ');
 }
 
-Map<String, Color> categoryColors = {
-  'Food': Colors.red,
-  'Drink': Colors.blue,
-  'Clothes': Colors.green,
-  'Gadget': Colors.orange,
-  'Installment': Colors.black,
-  'Perfume': Colors.pink,
-  'Games': Colors.lightGreenAccent,
-  'Billiard': Colors.teal,
-  'Parking Fee': Colors.cyan,
-  'Gas': Colors.limeAccent,
-};
+Map<String, Color> categoryColors = {};
 
 class ExpenseChart extends StatelessWidget {
   final Map<String, double> data;

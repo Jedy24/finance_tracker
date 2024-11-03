@@ -5,6 +5,7 @@ import 'package:finance_tracker/components/custom_button.dart';
 import 'package:finance_tracker/components/custom_categories.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:finance_tracker/services/edit_category.dart';
 
 class AddExpensesScreen extends StatefulWidget {
   const AddExpensesScreen({super.key});
@@ -17,6 +18,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
   String? _selectedType;
   DateTime? _selectedDate;
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final CustomCategories _customCategories = CustomCategories();
   List<String> _categories = [];
   Color _selectedColor = Colors.grey;
@@ -31,7 +33,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
     if (category.trim().isEmpty) return;
 
     try {
-      await _customCategories.addNewCategory(category);
+      await _customCategories.addNewCategory(category, color);
       setState(() {
         categoryColors[category] = color;
       });
@@ -50,6 +52,9 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
 
   Future<void> _loadCategories() async {
     _categories = await _customCategories.getCategories();
+    for (var category in _categories) {
+      categoryColors[category] = await _customCategories.getCategoryColor(category) ?? Colors.grey;
+    }
     setState(() {});
   }
 
@@ -72,6 +77,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
       _selectedType = null;
       _selectedDate = null;
       _priceController.clear();
+      _nameController.clear();
     });
   }
 
@@ -152,14 +158,14 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                               return StatefulBuilder(
                                 builder: (context, setState) {
                                   return AlertDialog(
-                                    title: const Text('Create New Type'),
+                                    title: const Text('Create New Category'),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         TextField(
                                           controller: _newTypeController,
                                           decoration: const InputDecoration(
-                                            hintText: 'Enter new type',
+                                            hintText: 'Enter new category',
                                           ),
                                         ),
                                         const SizedBox(height: 16),
@@ -209,7 +215,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                       TextButton(
                                         onPressed: () async {
                                           if (_newTypeController.text.isNotEmpty) {
-                                            await _addNewCategory(_newTypeController.text, _selectedColor);
+                                            await _addNewCategory(_newTypeController.text, _selectedColor); // Pass color here
                                             _newTypeController.clear();
                                             Navigator.of(context).pop();
                                           }
@@ -224,7 +230,25 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           );
                         },
                         child: Text(
-                          'Create New Type',
+                          'Create New Category',
+                          style: GoogleFonts.inter(
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF007AFF),
+                            ),
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          EditCategoryService(
+                            context: context,
+                            customCategories: _customCategories,
+                            onCategoryUpdated: _loadCategories, // Untuk memperbarui tampilan setelah kategori diubah
+                          ).showEditCategoryDialog();
+                        },
+                        child: Text(
+                          'Edit Category',
                           style: GoogleFonts.inter(
                             textStyle: const TextStyle(
                               fontSize: 16,
@@ -259,7 +283,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Type',
+                      'Category',
                       style: GoogleFonts.inter(
                         textStyle: const TextStyle(
                           fontSize: 16,
@@ -276,7 +300,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
-                      hint: const Text('Select Type'),
+                      hint: const Text('Select Category'),
                       onChanged: (String? newValue) {
                         setState(() {
                           _selectedType = newValue;
@@ -288,6 +312,28 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           child: Text(value),
                         );
                       }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Text(
+                      'Name',
+                      style: GoogleFonts.inter(
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        hintText: 'Input Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -354,8 +400,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                       child: CustomButton(
                         text: 'Create',
                         onPressed: () async {
-                          // Validasi semua field harus diisi
                           if (_selectedType == null || 
+                              _nameController.text.isEmpty ||
                               _priceController.text.isEmpty ||
                               _selectedDate == null) {
                             _showSnackBar('Please fill all fields', isError: true);
@@ -367,6 +413,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                             await _customCategories.addExpense(
                               price,
                               _selectedType!,
+                              _nameController.text,
                               _selectedDate!,
                             );
                             _showSnackBar('Success create new expenses');
