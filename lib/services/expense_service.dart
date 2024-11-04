@@ -74,12 +74,11 @@ Future<Map<String, double>> getExpensesByCategory() async {
       categoryTotals[category] = amount;
     }
   }
+
   return categoryTotals;
 }
 
 class ExpenseService {
-  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   static Future<Map<String, Map<String, List<Map<String, dynamic>>>>> fetchMonthlyExpensesGrouped(int month) async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, month, 1);
@@ -106,67 +105,22 @@ class ExpenseService {
         'date': date,
       };
 
-      // Inisialisasi kategori jika belum ada
+      // Initialize category if not present
       if (!groupedExpenses.containsKey(category)) {
         groupedExpenses[category] = {};
       }
 
-      // Inisialisasi tanggal di dalam kategori jika belum ada
+      // Initialize date group within category if not present
       if (!groupedExpenses[category]!.containsKey(formattedDate)) {
         groupedExpenses[category]![formattedDate] = [];
       }
 
-      // Tambahkan entri pengeluaran ke dalam kelompok kategori-tanggal
+      // Add expense entry to the category-date group
       groupedExpenses[category]![formattedDate]!.add(expenseEntry);
     }
 
     return groupedExpenses;
   }
-
-  // static Future<void> updateExpense(String documentId, Map<String, dynamic> updatedData) async {
-  //   try {
-  //     final Map<String, dynamic> dataToUpdate = {
-  //       'name': updatedData['name'] ?? '',
-  //       'amount': double.tryParse(updatedData['amount'].toString()) ?? 0.0,
-  //       'category': updatedData['category'] ?? 'Uncategorized',
-  //     };
-
-  //     if (updatedData['date'] != null) {
-  //       DateTime? date;
-  //       if (updatedData['date'] is String) {
-  //         try {
-  //           date = DateFormat('yyyy-MM-dd').parse(updatedData['date']);
-  //         } catch (e) {
-  //           print('Date parsing error: $e');
-  //         }
-  //       } else if (updatedData['date'] is DateTime) {
-  //         date = updatedData['date'];
-  //       }
-
-  //       if (date != null) {
-  //         dataToUpdate['date'] = Timestamp.fromDate(date);
-  //       }
-  //     }
-
-  //     await _firestore
-  //         .collection('expenses')
-  //         .doc(documentId)
-  //         .update(dataToUpdate);
-  //   } catch (e) {
-  //     throw Exception('Failed to update expense: $e');
-  //   }
-  // }
-
-  // static Future<void> deleteExpense(String documentId) async {
-  //   try {
-  //     await _firestore
-  //         .collection('expenses')
-  //         .doc(documentId)
-  //         .delete();
-  //   } catch (e) {
-  //     throw Exception('Failed to delete expense: $e');
-  //   }
-  // }
 }
 
 
