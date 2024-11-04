@@ -244,7 +244,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                           EditCategoryService(
                             context: context,
                             customCategories: _customCategories,
-                            onCategoryUpdated: _loadCategories, // Untuk memperbarui tampilan setelah kategori diubah
+                            onCategoryUpdated: _loadCategories,
                           ).showEditCategoryDialog();
                         },
                         child: Text(
