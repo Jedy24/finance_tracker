@@ -16,7 +16,19 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen>{
-    Future<void> _onRefresh() async {
+  bool _isLoadingColors = true; // Track loading state
+
+  @override
+  void initState() {
+    super.initState();
+    loadCategoryColorsFromFirebase().then((_) {
+      setState(() {
+        _isLoadingColors = false; // Set loading to false once colors are loaded
+      });
+    });
+  }
+
+  Future<void> _onRefresh() async {
     await Future.wait([
       getMonthlyExpenses(),
       getDailyExpenses(),
@@ -138,6 +150,8 @@ class _DashboardScreenState extends State<DashboardScreen>{
                           ),
                         ],
                       ),
+                    if (_isLoadingColors) 
+                    const Center(child: CircularProgressIndicator()),
                     ],
                   ),
                 ),
@@ -184,7 +198,6 @@ class _DashboardScreenState extends State<DashboardScreen>{
                               );
                             },
                           ),
-
                           const SizedBox(height: 16),
                           Text(
                             '${DateFormat('d MMM yyyy').format(DateTime.now())} Expenses',
@@ -245,20 +258,22 @@ class _DashboardScreenState extends State<DashboardScreen>{
                         ),
                         const SizedBox(height: 24),
 
-                        FutureBuilder<Map<String, double>>(
-                          future: getExpensesByCategory(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            }
+                        if (!_isLoadingColors) ...[
+                          FutureBuilder<Map<String, double>>(
+                            future: getExpensesByCategory(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              }
+                              if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              }
 
-                            final data = snapshot.data ?? {};
-                            return ExpenseChart(data: data);
-                          },
-                        ),
+                              final data = snapshot.data ?? {};
+                              return ExpenseChart(data: data);
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),
