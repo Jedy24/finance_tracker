@@ -253,7 +253,7 @@ class _BalancePageState extends State<BalancePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              expense['name'],  // Menampilkan nama pengeluaran
+                              expense['name'],
                               style: const TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,

@@ -4,7 +4,7 @@ class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const CustomButton({required this.text, required this.onPressed});
+  const CustomButton({super.key, required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class CustomButton extends StatelessWidget {
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF12B0F8), Color(0xFF007AFF)], // Gradient warna
+            colors: [Color(0xFF12B0F8), Color(0xFF007AFF)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -23,16 +23,16 @@ class CustomButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent, // Transparan untuk gradient
+            backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14), // Radius tombol
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15.0), // Padding tombol
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
             child: Text(
-              text, // Menggunakan teks yang diberikan melalui parameter
+              text,
               style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white,

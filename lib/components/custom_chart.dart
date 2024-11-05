@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Pastikan Anda menambahkan dependensi ini
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 
-// Fungsi untuk mengkapitalisasi huruf pertama dari setiap kata
+// Kapital untuk huruf pertama
 String capitalize(String input) {
   return input.split(' ').map((str) => str[0].toUpperCase() + str.substring(1)).join(' ');
 }
 
-// Map untuk menyimpan warna kategori
+// Menyimpan warna kategori
 Map<String, Color> categoryColors = {};
 
-// Fungsi untuk mengonversi warna hex ke objek Color
+// Convert warna hex ke objek color
 Color hexToColor(String hexColor) {
   final buffer = StringBuffer();
   if (hexColor.length == 6 || hexColor.length == 7) buffer.write('ff');
@@ -19,10 +19,10 @@ Color hexToColor(String hexColor) {
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
-// Fungsi untuk memuat warna kategori dari Firebase
+// Load warna kategori
 Future<void> loadCategoryColorsFromFirebase() async {
   try {
-    // Ambil data dari koleksi kategori di Firestore
+    // Get data dari firebase
     final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('categories').get();
     
     for (var doc in snapshot.docs) {
@@ -35,7 +35,7 @@ Future<void> loadCategoryColorsFromFirebase() async {
   }
 }
 
-// Widget untuk menampilkan grafik pengeluaran
+// Grafik expenses
 class ExpenseChart extends StatelessWidget {
   final Map<String, double> data;
 
@@ -105,7 +105,7 @@ class ExpenseChart extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: data.entries.map((entry) {
             final category = capitalize(entry.key);
-            final color = categoryColors[category] ?? Colors.grey; // Default ke grey jika warna tidak ditemukan
+            final color = categoryColors[category] ?? Colors.grey;
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(

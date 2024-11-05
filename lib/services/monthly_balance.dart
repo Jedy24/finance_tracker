@@ -6,7 +6,7 @@ class MonthlyBalanceService {
   static final CollectionReference _monthlyCollection = _firestore.collection('monthly');
   static final CollectionReference _expensesCollection = _firestore.collection('expenses');
 
-  // Fetch monthly balance as double
+  // Mengambil budget bulanan
   static Future<double> getMonthlyBalance() async {
     try {
       DocumentSnapshot doc = await _monthlyCollection.doc('thupwoBKWSiPrBL7YQ7K').get();
@@ -23,7 +23,7 @@ class MonthlyBalanceService {
     }
   }
 
-  // Get total expenses for current month
+  // Total pengeluaran bulanan
   static Future<double> getCurrentMonthExpenses() async {
     try {
       final now = DateTime.now();
@@ -46,7 +46,7 @@ class MonthlyBalanceService {
     }
   }
 
-  // Fetch final balance (includes expenses)
+  // Perhitungan akhir budget
   static Future<double> fetchBalance() async {
     try {
       final monthlyExpenses = await getMonthlyExpenses();
@@ -58,7 +58,7 @@ class MonthlyBalanceService {
     }
   }
 
-  // Update monthly balance
+  // Update budget bulanan
   static Future<void> updateMonthlyBalance(double newBalance) async {
     try {
       await _monthlyCollection.doc('thupwoBKWSiPrBL7YQ7K').set({

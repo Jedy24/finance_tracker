@@ -29,7 +29,6 @@ class CustomCategories {
 
   Future<void> addExpense(double amount, String category, String name, DateTime date) async {
     if (category == "Installment") {
-      // Add to installments collection
       await FirebaseFirestore.instance.collection('installments').add({
         'amount': amount,
         'startDate': Timestamp.fromDate(date),
@@ -37,7 +36,6 @@ class CustomCategories {
         'isPaid': false,
       });
     } else {
-      // Otherwise, add to expenses collection
       await FirebaseFirestore.instance.collection('expenses').add({
         'amount': amount,
         'category': category,
@@ -47,35 +45,32 @@ class CustomCategories {
     }
   }
 
-  // Method untuk memuat kategori dan menyimpan ke dalam list _categories
+  // Load kategori dan menyimpan kedalam list_category
   Future<void> loadCategories() async {
     _categories = await getCategories();
   }
 
-  // Getter untuk mengambil kategori yang sudah dimuat
+  // Mengambil kategori yang sudah dimuat
   List<String> get categories => _categories;
 
-    /// Metode untuk memperbarui kategori yang ada
   Future<void> updateCategory(String oldCategory, String newCategory, Color newColor) async {
     final colorHex = newColor.value.toRadixString(16).padLeft(8, '0');
     
     if (oldCategory != newCategory) {
-      // Hapus kategori lama
       await _categoriesCollection.doc(oldCategory).delete();
-      // Tambahkan kategori baru
       await _categoriesCollection.doc(newCategory).set({
         'name': newCategory,
         'color': colorHex,
       });
     } else {
-      // Jika nama sama, hanya update warna
+      // Jika nama sama maka hanya update warna
       await _categoriesCollection.doc(oldCategory).update({
         'color': colorHex,
       });
     }
   }
 
-  /// Metode untuk menghapus kategori berdasarkan nama
+  // Hapus kategori berdasarkan nama
   Future<void> deleteCategory(String category) async {
     await _categoriesCollection.doc(category).delete();
   }

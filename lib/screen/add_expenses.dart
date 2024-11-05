@@ -169,7 +169,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 16),
-                                        // Color picker section
+                                        // Color picker
                                         Text('Select Color', style: GoogleFonts.inter(fontSize: 14)),
                                         const SizedBox(height: 8),
                                         GestureDetector(

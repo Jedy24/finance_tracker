@@ -14,7 +14,6 @@ class FinanceTrackerScreen extends StatelessWidget {
         children: [
           Column(
             children: [
-              // Gambar di bagian atas layar
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: Container(
@@ -31,7 +30,6 @@ class FinanceTrackerScreen extends StatelessWidget {
                 ),
               ),
 
-              // Title Section
               const Spacer(),
               Text(
                 'FINANCE TRACKER',
@@ -43,7 +41,6 @@ class FinanceTrackerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Subtitle Section
               Text(
                 'Track your expenses to prevent\noverspending from your budget',
                 textAlign: TextAlign.center,
@@ -58,7 +55,6 @@ class FinanceTrackerScreen extends StatelessWidget {
                 child: CustomButton(
                   text: 'Get Started',
                   onPressed: () {
-                    // Navigasi ke halaman Dashboard
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => DashboardScreen()),

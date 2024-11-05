@@ -205,7 +205,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                   const SizedBox(height: 64),
 
-                  // Current Balance Section with Remaining Installment
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -283,7 +282,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  // Pay Now Button
                   SizedBox(
                     width: double.infinity,
                     child: Container(

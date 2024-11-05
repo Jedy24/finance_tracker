@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InstallmentService {
-  // Calculate the total remaining installment
+  // Menghitung total cicilan
   static Future<double> calculateTotalInstallment() async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('installments')
@@ -15,7 +15,7 @@ class InstallmentService {
     return totalInstallment;
   }
 
-  // Function to pay installment and log it as an expense
+  // Fungsi untuk membayar cicilan dan memasukkannya kedalam pengeluaran bulanan
   static Future<void> payInstallment(double amount) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('installments')

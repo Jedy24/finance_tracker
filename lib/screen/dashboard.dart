@@ -16,14 +16,15 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen>{
-  bool _isLoadingColors = true; // Track loading state
+  // Load warna chart
+  bool _isLoadingColors = true;
 
   @override
   void initState() {
     super.initState();
     loadCategoryColorsFromFirebase().then((_) {
       setState(() {
-        _isLoadingColors = false; // Set loading to false once colors are loaded
+        _isLoadingColors = false; // Jika sudah load maka diberhentikan
       });
     });
   }
@@ -85,7 +86,6 @@ class _DashboardScreenState extends State<DashboardScreen>{
                           ),
                           Row(
                             children: [
-                              // Tombol Add
                               Container(
                                 width: 78,
                                 height: 40, 
@@ -116,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Tombol Pay
+
                               Container(
                                 width: 78,
                                 height: 40, 
@@ -182,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                             future: getMonthlyExpenses(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const CircularProgressIndicator(); // Placeholder saat loading
+                                return const CircularProgressIndicator();
                               }
                               if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
@@ -279,7 +279,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                   ),
                 ),
 
-                // Riwayat pengeluaran tertinggi dan tombol "See all"
+                // Riwayat pengeluaran tertinggi dan tombol "See more"
                 Card(
                   color: Colors.white,
                   elevation: 0,

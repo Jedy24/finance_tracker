@@ -106,17 +106,17 @@ class ExpenseService {
         'date': date,
       };
 
-      // Initialize category if not present
+      // Inisialisasi kategori jika tidak ada
       if (!groupedExpenses.containsKey(category)) {
         groupedExpenses[category] = {};
       }
 
-      // Initialize date group within category if not present
+      // Inisialisasi date group dalam kategori jika tidak ada
       if (!groupedExpenses[category]!.containsKey(formattedDate)) {
         groupedExpenses[category]![formattedDate] = [];
       }
 
-      // Add expense entry to the category-date group
+      // Menambahkan expense kedalam kategori-date group
       groupedExpenses[category]![formattedDate]!.add(expenseEntry);
     }
 
