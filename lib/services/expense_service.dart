@@ -100,6 +100,7 @@ class ExpenseService {
       final formattedDate = DateFormat('d MMM yyyy').format(date);
 
       final expenseEntry = {
+        'id': doc.id, 
         'name': data['name'],
         'amount': data['amount'],
         'date': date,
@@ -121,6 +122,21 @@ class ExpenseService {
 
     return groupedExpenses;
   }
+
+  static Future<void> updateExpense(String documentId, Map<String, dynamic> updatedData) async {
+    await FirebaseFirestore.instance
+        .collection('expenses')
+        .doc(documentId)
+        .update(updatedData);
+  }
+
+  static Future<void> deleteExpense(String documentId) async {
+    await FirebaseFirestore.instance
+        .collection('expenses')
+        .doc(documentId)
+        .delete();
+  }
 }
+
 
 
