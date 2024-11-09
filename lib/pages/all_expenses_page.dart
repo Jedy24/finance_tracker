@@ -32,7 +32,22 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("All Expenses"),
+        title: const Text(
+          "All Expenses",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold, 
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF12B0F8), Color(0xFF007AFF)], 
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder<Map<String, Map<String, List<Map<String, dynamic>>>>>(
         future: _futureGroupedExpenses,
@@ -145,8 +160,9 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
   void _showEditDialog(BuildContext context, Map<String, dynamic> expense) {
     final TextEditingController nameController = TextEditingController(text: expense['name']?.toString() ?? '');
     final TextEditingController amountController = TextEditingController(
-      text: CurrencyFormatter.formatCurrency(expense['amount']),
+      text: expense['amount'].toStringAsFixed(0), 
     );
+    final FocusNode amountFocusNode = FocusNode();
 
     String initialDateString = '';
     if (expense['date'] is DateTime) {
@@ -157,14 +173,13 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
 
     final TextEditingController dateController = TextEditingController(text: initialDateString);
 
-    amountController.addListener(() {
-      final text = amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      if (text.isNotEmpty) {
-        final formatted = CurrencyFormatter.formatCurrency(double.parse(text));
-        amountController.value = TextEditingValue(
-          text: formatted,
-          selection: TextSelection.collapsed(offset: formatted.length),
-        );
+    amountFocusNode.addListener(() {
+      if (!amountFocusNode.hasFocus) {
+        final rawText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+        if (rawText.isNotEmpty) {
+          final formatted = CurrencyFormatter.formatCurrency(double.parse(rawText));
+          amountController.text = formatted;
+        }
       }
     });
 
@@ -218,9 +233,12 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
             TextButton(
               onPressed: () async {
                 try {
+                  final rawAmountText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+                  final updatedAmount = double.tryParse(rawAmountText) ?? expense['amount'];
+
                   final updatedExpense = {
                     'name': nameController.text.trim(),
-                    'amount': double.tryParse(amountController.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? expense['amount'],
+                    'amount': updatedAmount,
                     'date': Timestamp.fromDate(DateFormat('yyyy-MM-dd').parse(dateController.text.trim())),
                   };
 
