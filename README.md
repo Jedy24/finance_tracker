@@ -1,6 +1,9 @@
-# finance_tracker
+# Finance Tracker
 
-A new Flutter project.
+Project untuk UAS Pemrograman Piranti Bergerak
+
+Jevon Ivander Juandy
+NPM: 2021130021
 
 ## Getting Started
 
