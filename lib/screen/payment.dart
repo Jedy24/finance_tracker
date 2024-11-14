@@ -81,6 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     await PaymentService.payInstallment(amount);
     await _calculateRemainingInstallment();
+    await _loadBalance();
     _amountController.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -108,9 +109,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        margin: EdgeInsets.only(
-          top: 32,
-          bottom: MediaQuery.of(context).size.height - 100,
+        margin: const EdgeInsets.only(
+          bottom: 20,
           right: 20,
           left: 20,
         ),
