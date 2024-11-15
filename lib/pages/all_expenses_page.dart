@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finance_tracker/services/installment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_tracker/services/expense_service.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
@@ -230,45 +231,48 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
               onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  final rawAmountText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
-                  final updatedAmount = double.tryParse(rawAmountText) ?? expense['amount'];
+          TextButton(
+            onPressed: () async {
+              try {
+                final rawAmountText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
+                final updatedAmount = double.tryParse(rawAmountText) ?? expense['amount'];
 
+                if (expense['category'] == 'Installment') {
+                  await InstallmentService.updateInstallmentExpense(
+                    expense['id'],
+                    updatedAmount,
+                  );
+                } else {
                   final updatedExpense = {
                     'name': nameController.text.trim(),
                     'amount': updatedAmount,
                     'date': Timestamp.fromDate(DateFormat('yyyy-MM-dd').parse(dateController.text.trim())),
                   };
-
-                  await ExpenseService.updateExpense(
-                    expense['id'],
-                    updatedExpense,
-                  );
-
-                  if (mounted) {
-                    Navigator.pop(context);
-                    await _fetchGroupedExpenses();
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Expense updated successfully!"),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Failed to update expense: $e"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                  await ExpenseService.updateExpense(expense['id'], updatedExpense);
                 }
-              },
+
+                if (mounted) {
+                  Navigator.pop(context);
+                  await _fetchGroupedExpenses();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Expense updated successfully!"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Failed to update expense: $e"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
               child: const Text("Save"),
             ),
           ],

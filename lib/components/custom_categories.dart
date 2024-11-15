@@ -30,6 +30,7 @@ class CustomCategories {
   Future<void> addExpense(double amount, String category, String name, DateTime date) async {
     if (category == "Installment") {
       await FirebaseFirestore.instance.collection('installments').add({
+        'name': name,
         'amount': amount,
         'startDate': Timestamp.fromDate(date),
         'dueDate': Timestamp.fromDate(date.add(const Duration(days: 30))),

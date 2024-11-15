@@ -42,7 +42,67 @@ class InstallmentService {
     await FirebaseFirestore.instance.collection('expenses').add({
       'amount': amount,
       'category': 'Installment',
+      'name': 'Bayar cicilan',
       'date': Timestamp.now(),
     });
   }
+
+  static Future<void> updateInstallmentExpense(String expenseId, double newAmount, {String? newName}) async {
+    final expenseDoc = await FirebaseFirestore.instance
+        .collection('expenses')
+        .doc(expenseId)
+        .get();
+
+    if (expenseDoc.exists) {
+      final originalExpenseAmount = expenseDoc['amount'];
+      final originalName = expenseDoc['name'] ?? "Bayar cicilan";
+
+      final installmentQuery = await FirebaseFirestore.instance
+          .collection('installments')
+          .where('amount', isEqualTo: originalExpenseAmount)
+          .where('startDate', isEqualTo: expenseDoc['date'])
+          .limit(1)
+          .get();
+
+      if (installmentQuery.docs.isNotEmpty) {
+        final installmentDoc = installmentQuery.docs.first;
+
+        await FirebaseFirestore.instance.collection('expenses').doc(expenseId).update({
+          'amount': newAmount,
+          'name': newName ?? originalName,
+        });
+
+        final amountDifference = originalExpenseAmount - newAmount;
+
+        await adjustRemainingInstallment(installmentDoc.id, amountDifference);
+      }
+    }
+  }
+
+  static Future<void> adjustRemainingInstallment(String installmentId, double amountDifference) async {
+    final installmentDoc = await FirebaseFirestore.instance
+        .collection('installments')
+        .doc(installmentId)
+        .get();
+
+    if (!installmentDoc.exists) {
+      throw Exception("Installment not found");
+    }
+
+    final data = installmentDoc.data()!;
+    final remainingAmount = data['remainingAmount'];
+    final balance = data['balance'];
+    final originalAmount = data['amount'];
+
+    final updatedRemainingAmount = remainingAmount + amountDifference;
+    final updatedBalance = balance + amountDifference;
+    final updatedAmount = originalAmount + amountDifference;
+
+    await installmentDoc.reference.update({
+      'remainingAmount': updatedRemainingAmount,
+      'balance': updatedBalance,
+      'amount': updatedAmount,
+    });
+  }
+
 }
