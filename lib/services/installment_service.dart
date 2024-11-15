@@ -47,7 +47,7 @@ class InstallmentService {
     });
   }
 
-  static Future<void> updateInstallmentExpense(String expenseId, double newAmount, {String? newName}) async {
+static Future<void> updateInstallmentExpense(String expenseId, double newAmount, {String? newName, Timestamp? newDate}) async {
     final expenseDoc = await FirebaseFirestore.instance
         .collection('expenses')
         .doc(expenseId)
@@ -56,21 +56,25 @@ class InstallmentService {
     if (expenseDoc.exists) {
       final originalExpenseAmount = expenseDoc['amount'];
       final originalName = expenseDoc['name'] ?? "Bayar cicilan";
+      final originalDate = expenseDoc['date'];
 
       final installmentQuery = await FirebaseFirestore.instance
           .collection('installments')
           .where('amount', isEqualTo: originalExpenseAmount)
-          .where('startDate', isEqualTo: expenseDoc['date'])
+          .where('startDate', isEqualTo: originalDate)
           .limit(1)
           .get();
 
       if (installmentQuery.docs.isNotEmpty) {
         final installmentDoc = installmentQuery.docs.first;
 
-        await FirebaseFirestore.instance.collection('expenses').doc(expenseId).update({
+        final updatedData = {
           'amount': newAmount,
           'name': newName ?? originalName,
-        });
+          if (newDate != null) 'date': newDate,
+        };
+
+        await FirebaseFirestore.instance.collection('expenses').doc(expenseId).update(updatedData);
 
         final amountDifference = originalExpenseAmount - newAmount;
 
@@ -104,5 +108,4 @@ class InstallmentService {
       'amount': updatedAmount,
     });
   }
-
 }
