@@ -101,7 +101,7 @@ class _BalancePageState extends State<BalancePage> {
                               double currentBalance = await MonthlyBalanceService.getMonthlyBalance();
 
                               final TextEditingController controller = TextEditingController(
-                               text: CurrencyFormatter.formatCurrency(currentBalance).replaceAll('Rp. ', ''),
+                                text: CurrencyFormatter.formatCurrency(currentBalance).replaceAll('Rp. ', ''),
                               );
 
                               double? newBalance = await showDialog<double>(
@@ -115,8 +115,20 @@ class _BalancePageState extends State<BalancePage> {
                                       decoration: const InputDecoration(
                                         prefixText: 'Rp. ',
                                       ),
+                                      onChanged: (value) {
+                                        String rawValue = value.replaceAll(RegExp(r'[^0-9]'), '');
+
+                                        if (rawValue.isNotEmpty) {
+                                          double parsedValue = double.tryParse(rawValue) ?? 0;
+                                          String formattedValue = CurrencyFormatter.formatCurrency(parsedValue).replaceAll('Rp. ', '');
+
+                                          controller.value = TextEditingValue(
+                                            text: formattedValue,
+                                            selection: TextSelection.collapsed(offset: formattedValue.length),
+                                          );
+                                        }
+                                      },
                                     ),
-                                    
                                     actions: [
                                       TextButton(
                                         child: const Text("Cancel"),
@@ -125,7 +137,8 @@ class _BalancePageState extends State<BalancePage> {
                                       TextButton(
                                         child: const Text("Save"),
                                         onPressed: () {
-                                          final newValue = double.tryParse(controller.text) ?? 0;
+                                          final rawText = controller.text.replaceAll(RegExp(r'[Rp.\s,]'), '').trim();
+                                          final newValue = double.tryParse(rawText) ?? 0;
                                           Navigator.pop(context, newValue);
                                         },
                                       ),
@@ -135,10 +148,11 @@ class _BalancePageState extends State<BalancePage> {
                               );
                               if (newBalance != null) {
                                 await MonthlyBalanceService.updateMonthlyBalance(newBalance);
-                                await _loadBalance();
+                                await _loadBalance(); 
                               }
                             },
                           ),
+
                         ],
                       ),
                       const SizedBox(height: 32),

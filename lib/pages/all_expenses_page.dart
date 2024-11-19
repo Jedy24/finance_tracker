@@ -161,7 +161,7 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
   void _showEditDialog(BuildContext context, Map<String, dynamic> expense) {
     final TextEditingController nameController = TextEditingController(text: expense['name']?.toString() ?? '');
     final TextEditingController amountController = TextEditingController(
-      text: expense['amount'].toStringAsFixed(0), 
+      text: CurrencyFormatter.formatCurrency(expense['amount']), 
     );
     final FocusNode amountFocusNode = FocusNode();
 
@@ -173,16 +173,6 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
     }
 
     final TextEditingController dateController = TextEditingController(text: initialDateString);
-
-    amountFocusNode.addListener(() {
-      if (!amountFocusNode.hasFocus) {
-        final rawText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
-        if (rawText.isNotEmpty) {
-          final formatted = CurrencyFormatter.formatCurrency(double.parse(rawText));
-          amountController.text = formatted;
-        }
-      }
-    });
 
     showDialog(
       context: context,
@@ -198,8 +188,24 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
               ),
               TextField(
                 controller: amountController,
-                decoration: const InputDecoration(labelText: 'Amount'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                focusNode: amountFocusNode,
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    String numericValue = value.replaceAll(RegExp(r'[^0-9]'), '');
+                    
+                    if (numericValue.isNotEmpty) {
+                      double amount = double.parse(numericValue);
+                      amountController.text = CurrencyFormatter.formatCurrency(amount);
+                      amountController.selection = TextSelection.fromPosition(
+                        TextPosition(offset: amountController.text.length),
+                      );
+                    }
+                  }
+                },
               ),
               TextField(
                 controller: dateController,
@@ -231,48 +237,50 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
               onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
-          TextButton(
-            onPressed: () async {
-              try {
-                final rawAmountText = amountController.text.replaceAll(RegExp(r'[^0-9.]'), '');
-                final updatedAmount = double.tryParse(rawAmountText) ?? expense['amount'];
+            TextButton(
+              onPressed: () async {
+                try {
+                  final rawAmountText = amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
+                  final updatedAmount = rawAmountText.isEmpty ? 
+                      expense['amount'] : 
+                      double.parse(rawAmountText);
 
-                if (expense['category'] == 'Installment') {
-                  await InstallmentService.updateInstallmentExpense(
-                    expense['id'],
-                    updatedAmount,
-                  );
-                } else {
-                  final updatedExpense = {
-                    'name': nameController.text.trim(),
-                    'amount': updatedAmount,
-                    'date': Timestamp.fromDate(DateFormat('yyyy-MM-dd').parse(dateController.text.trim())),
-                  };
-                  await ExpenseService.updateExpense(expense['id'], updatedExpense);
-                }
+                  if (expense['category'] == 'Installment') {
+                    await InstallmentService.updateInstallmentExpense(
+                      expense['id'],
+                      updatedAmount,
+                    );
+                  } else {
+                    final updatedExpense = {
+                      'name': nameController.text.trim(),
+                      'amount': updatedAmount,
+                      'date': Timestamp.fromDate(DateFormat('yyyy-MM-dd').parse(dateController.text.trim())),
+                    };
+                    await ExpenseService.updateExpense(expense['id'], updatedExpense);
+                  }
 
-                if (mounted) {
-                  Navigator.pop(context);
-                  await _fetchGroupedExpenses();
+                  if (mounted) {
+                    Navigator.pop(context);
+                    await _fetchGroupedExpenses();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Expense updated successfully!"),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Expense updated successfully!"),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Failed to update expense: $e"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Failed to update expense: $e"),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
+              },
               child: const Text("Save"),
             ),
           ],
