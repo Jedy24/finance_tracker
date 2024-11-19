@@ -101,7 +101,7 @@ class _BalancePageState extends State<BalancePage> {
                               double currentBalance = await MonthlyBalanceService.getMonthlyBalance();
 
                               final TextEditingController controller = TextEditingController(
-                                text: currentBalance.toString(),
+                               text: CurrencyFormatter.formatCurrency(currentBalance).replaceAll('Rp. ', ''),
                               );
 
                               double? newBalance = await showDialog<double>(
@@ -116,6 +116,7 @@ class _BalancePageState extends State<BalancePage> {
                                         prefixText: 'Rp. ',
                                       ),
                                     ),
+                                    
                                     actions: [
                                       TextButton(
                                         child: const Text("Cancel"),
