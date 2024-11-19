@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:finance_tracker/services/expense_service.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
 import 'package:finance_tracker/components/custom_chart.dart';
+import 'package:provider/provider.dart';
+import 'package:finance_tracker/theme/theme_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -45,8 +47,11 @@ class _DashboardScreenState extends State<DashboardScreen>{
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: SingleChildScrollView(
@@ -61,28 +66,32 @@ class _DashboardScreenState extends State<DashboardScreen>{
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Hello',
-                        style: GoogleFonts.inter(
-                          textStyle: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Hello',
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(
+                              themeProvider.isDarkMode 
+                                ? Icons.light_mode 
+                                : Icons.dark_mode,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              themeProvider.toggleTheme();
+                            },
+                          ),
+                        ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Home',
-                            style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                color: Color(0xFF007AFF),
-                                fontSize: 34,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                           Row(
                             children: [
@@ -90,8 +99,10 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                 width: 78,
                                 height: 40, 
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF12B0F8), Color(0xFF007AFF)],
+                                  gradient: LinearGradient(
+                                    colors: isDark 
+                                      ? [const Color(0xFF12B0F8), const Color(0xFF007AFF)]
+                                      : [const Color(0xFF12B0F8), const Color(0xFF007AFF)],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                   ),
@@ -121,8 +132,10 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                 width: 78,
                                 height: 40, 
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF12B0F8), Color(0xFF007AFF)],
+                                  gradient: LinearGradient(
+                                    colors: isDark 
+                                      ? [const Color(0xFF12B0F8), const Color(0xFF007AFF)]
+                                      : [const Color(0xFF12B0F8), const Color(0xFF007AFF)],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                   ),
@@ -151,7 +164,11 @@ class _DashboardScreenState extends State<DashboardScreen>{
                         ],
                       ),
                     if (_isLoadingColors) 
-                    const Center(child: CircularProgressIndicator()),
+                      Center(
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -160,7 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                 // Total pengeluaran bulanan dan harian
                 Center(
                   child: Card(
-                    color: Colors.white,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     elevation: 0,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -169,13 +186,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                         children: [
                           Text(
                             '${DateFormat.MMMM().format(DateTime.now())} Expenses',
-                            style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                color: Color(0xFF007AFF), 
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 1),
                           FutureBuilder<double>(
@@ -201,13 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                           const SizedBox(height: 16),
                           Text(
                             '${DateFormat('d MMM yyyy').format(DateTime.now())} Expenses',
-                            style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                color: Color(0xFF007AFF),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 4),
                           FutureBuilder<double>(
@@ -239,7 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
 
                 // Grafik pengeluaran
                 Card(
-                  color: Colors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   elevation: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -248,13 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
                       children: [
                         Text(
                           'Expenses',
-                          style: GoogleFonts.inter(
-                            textStyle: const TextStyle(
-                              color: Color(0xFF007AFF),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
                         ),
                         const SizedBox(height: 24),
 
@@ -281,7 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
 
                 // Riwayat pengeluaran tertinggi dan tombol "See more"
                 Card(
-                  color: Colors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   elevation: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -317,8 +316,8 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                 child: Text(
                                   'See More',
                                   style: GoogleFonts.inter(
-                                    textStyle: const TextStyle(
-                                      color: Colors.black,
+                                    textStyle: TextStyle(
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -352,23 +351,23 @@ class _DashboardScreenState extends State<DashboardScreen>{
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                                   title: Text(
                                     capitalize(expense['category']),
-                                    style: const TextStyle(
-                                      color: Colors.black,
+                                    style: TextStyle(
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
                                       ),
                                   ),
                                   subtitle: Text(
                                     DateFormat('d MMM yyyy').format(expense['date'].toDate()),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 15,
-                                      color: Color(0xFF8E8E93),
+                                      color: isDark ?  const Color(0xFF8E8E93) :  const Color(0xFF8E8E93),
                                     ),
                                     ),
                                   trailing: Text(
                                     CurrencyFormatter.formatCurrency(expense['amount']),
-                                    style: const TextStyle(
-                                      color: Colors.blue,
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
                                       fontSize: 17, 
                                     ),
                                   ),

@@ -46,6 +46,9 @@ class ExpenseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWideScreen = constraints.maxWidth > 500;
@@ -58,14 +61,14 @@ class ExpenseChart extends StatelessWidget {
                   children: [
                     _buildPieChart(),
                     const SizedBox(width: 30),
-                    _buildLegend(),
+                    _buildLegend(context, textColor),
                   ],
                 )
               : Column(
                   children: [
                     _buildPieChart(),
                     const SizedBox(height: 30),
-                    _buildLegend(),
+                    _buildLegend(context, textColor),
                   ],
                 ),
         );
@@ -96,7 +99,7 @@ class ExpenseChart extends StatelessWidget {
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegend(BuildContext context, Color textColor) {
     return Container(
       constraints: const BoxConstraints(maxHeight: 250),
       child: SingleChildScrollView(
@@ -114,7 +117,13 @@ class ExpenseChart extends StatelessWidget {
                   Container(
                     width: 16,
                     height: 16,
-                    color: color,
+                    decoration: BoxDecoration(
+                      color: color,
+                      border: Border.all(
+                        color: Theme.of(context).dividerColor.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
@@ -123,17 +132,17 @@ class ExpenseChart extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: category,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: textColor,
                             ),
                           ),
                           TextSpan(
                             text: ': ${CurrencyFormatter.formatCurrency(entry.value)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Colors.black,
+                              color: textColor,
                             ),
                           ),
                         ],

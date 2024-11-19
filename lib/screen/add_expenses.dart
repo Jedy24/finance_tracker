@@ -6,7 +6,6 @@ import 'package:finance_tracker/components/custom_categories.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:finance_tracker/services/edit_category.dart';
-
 class AddExpensesScreen extends StatefulWidget {
   const AddExpensesScreen({super.key});
 
@@ -121,14 +120,16 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
             ),
             child: Stack(
               children: [
@@ -140,13 +141,10 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                         padding: const EdgeInsets.only(top: 40.0),
                         child: Text(
                           'Add New Expenses',
-                          style: GoogleFonts.inter(
-                            textStyle: const TextStyle(
-                              fontSize: 22,
+                            style: theme.textTheme.bodyLarge?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              fontSize: 22,
                             ),
-                          ),
                         ),
                       ),
                       TextButton(
@@ -158,19 +156,30 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                               return StatefulBuilder(
                                 builder: (context, setState) {
                                   return AlertDialog(
-                                    title: const Text('Create New Category'),
+                                    backgroundColor: theme.cardColor,
+                                    title: Text('Create New Category', 
+                                      style: TextStyle(color: theme.textTheme.bodyLarge?.color)),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         TextField(
                                           controller: _newTypeController,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             hintText: 'Enter new category',
+                                            hintStyle: TextStyle(
+                                              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+                                              fontSize: 16,
+                                            ),
                                           ),
+                                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                                         ),
                                         const SizedBox(height: 16),
-                                        // Color picker
-                                        Text('Select Color', style: GoogleFonts.inter(fontSize: 14)),
+                                        Text('Select Color', 
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            color: theme.textTheme.bodyLarge?.color
+                                          )
+                                        ),
                                         const SizedBox(height: 8),
                                         GestureDetector(
                                           onTap: () {
@@ -178,7 +187,9 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                               context: context,
                                               builder: (context) {
                                                 return AlertDialog(
-                                                  title: const Text('Pick a color'),
+                                                  backgroundColor: theme.cardColor,
+                                                  title: Text('Pick a color', 
+                                                    style: TextStyle(color: theme.textTheme.bodyLarge?.color)),
                                                   content: SingleChildScrollView(
                                                     child: ColorPicker(
                                                       pickerColor: _selectedColor,
@@ -189,7 +200,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                                   ),
                                                   actions: <Widget>[
                                                     TextButton(
-                                                      child: const Text('Select'),
+                                                      child: Text('Select', 
+                                                        style: TextStyle(color: theme.primaryColor)),
                                                       onPressed: () {
                                                         Navigator.of(context).pop();
                                                       },
@@ -210,17 +222,19 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.of(context).pop(),
-                                        child: const Text('Cancel'),
+                                        child: Text('Cancel', 
+                                          style: TextStyle(color: theme.primaryColor)),
                                       ),
                                       TextButton(
                                         onPressed: () async {
                                           if (_newTypeController.text.isNotEmpty) {
-                                            await _addNewCategory(_newTypeController.text, _selectedColor); // Pass color here
+                                            await _addNewCategory(_newTypeController.text, _selectedColor);
                                             _newTypeController.clear();
                                             Navigator.of(context).pop();
                                           }
                                         },
-                                        child: const Text('Add'),
+                                        child: Text('Add', 
+                                          style: TextStyle(color: theme.primaryColor)),
                                       ),
                                     ],
                                   );
@@ -231,11 +245,9 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                         },
                         child: Text(
                           'Create New Category',
-                          style: GoogleFonts.inter(
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF007AFF),
-                            ),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: theme.primaryColor,
                           ),
                         ),
                       ),
@@ -249,11 +261,9 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                         },
                         child: Text(
                           'Edit Category',
-                          style: GoogleFonts.inter(
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF007AFF),
-                            ),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: theme.primaryColor,
                           ),
                         ),
                       ),
@@ -265,7 +275,8 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 16.0),
                     child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black),
+                      icon: Icon(Icons.close, 
+                        color: theme.iconTheme.color),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -276,7 +287,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
 
           Expanded(
             child: Container(
-              color: Colors.white,
+              color: theme.scaffoldBackgroundColor,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -284,53 +295,67 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                   children: [
                     Text(
                       'Category',
-                      style: GoogleFonts.inter(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
+                      style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      value: _selectedType,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        inputDecorationTheme: InputDecorationTheme(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: theme.primaryColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: theme.primaryColor),
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
-                      hint: const Text('Select Category'),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedType = newValue;
-                        });
-                      },
-                      items: _categories.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedType,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                        ),
+                        hint: Text('Select Category', 
+                          style: TextStyle(color: theme.textTheme.bodyLarge?.color?.withOpacity(0.5))),
+                        dropdownColor: theme.cardColor,
+                        style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedType = newValue;
+                          });
+                        },
+                        items: _categories.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
                     ),
                     const SizedBox(height: 16),
 
                     Text(
                       'Name',
-                      style: GoogleFonts.inter(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
+                      style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _nameController,
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                       decoration: InputDecoration(
                         hintText: 'Input Name',
+                        hintStyle: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color?.withOpacity(0.5),
+                          fontSize: 16,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.primaryColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.primaryColor),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
@@ -339,21 +364,26 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
 
                     Text(
                       'Price',
-                      style: GoogleFonts.inter(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
+                      style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _priceController,
                       keyboardType: TextInputType.number,
+                      style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                       decoration: InputDecoration(
                         hintText: 'Input Price',
+                        hintStyle: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color?.withOpacity(0.5),
+                          fontSize: 16,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.primaryColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.primaryColor),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
@@ -369,25 +399,30 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
 
                     Text(
                       'Date',
-                      style: GoogleFonts.inter(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
+                      style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () => _selectDate(context),
                       child: AbsorbPointer(
                         child: TextField(
+                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                           decoration: InputDecoration(
                             hintText: _selectedDate != null
                                 ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}"
                                 : 'Select Date',
-                            suffixIcon: const Icon(Icons.calendar_today),
+                            hintStyle: TextStyle(
+                              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.5),
+                              fontSize: 16,
+                            ),
+                            suffixIcon: Icon(Icons.calendar_today, color: theme.iconTheme.color),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: theme.primaryColor),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: theme.primaryColor),
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                           ),

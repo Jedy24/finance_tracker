@@ -125,6 +125,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -135,7 +137,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               icon: Text('Cancel',
                   style: GoogleFonts.inter(
                     fontSize: 16,
-                    color: Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color
                   )),
               onPressed: () {
                 Navigator.push(
@@ -146,11 +148,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
         ],
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
       body: Container(
-        color: Colors.white,
+        color: theme.scaffoldBackgroundColor,
         child: RefreshIndicator(
           onRefresh: _refreshData,
           child: SingleChildScrollView(
@@ -172,7 +174,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                   ),
@@ -208,7 +210,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -224,7 +226,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   'REMAINING INSTALLMENT',
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
-                                    color: Colors.black,
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -251,17 +253,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   'CURRENT BALANCE',
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
-                                    color: Colors.black,
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 if (balance != null)
                                   Text(
                                     CurrencyFormatter.formatCurrency(balance!),
-                                    style: GoogleFonts.inter(
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                       fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF007AFF),
                                     ),
                                   )
                                 else

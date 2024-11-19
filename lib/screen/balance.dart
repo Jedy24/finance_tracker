@@ -35,18 +35,21 @@ class _BalancePageState extends State<BalancePage> {
   Widget build(BuildContext context) {
     final currentMonth = DateTime.now().month;
     final monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][currentMonth - 1].toUpperCase();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
             children: [
-             Row(
+              Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                    icon: Icon(Icons.arrow_back, 
+                      color: Theme.of(context).iconTheme.color
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -54,11 +57,12 @@ class _BalancePageState extends State<BalancePage> {
                       );
                     },
                   ),
-                  const Text(
+                  Text(
                     "Back",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                 ],
@@ -70,11 +74,12 @@ class _BalancePageState extends State<BalancePage> {
                 style: GoogleFonts.inter(
                   fontSize: 34,
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.headlineLarge?.color,
                 ),
               ),
 
               Card(
-                color: Colors.white,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -91,12 +96,14 @@ class _BalancePageState extends State<BalancePage> {
                             'BALANCE $monthName',
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: Colors.black,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.edit),
+                            icon: Icon(Icons.edit,
+                              color: Theme.of(context).iconTheme.color
+                            ),
                             onPressed: () async {
                               double currentBalance = await MonthlyBalanceService.getMonthlyBalance();
 
@@ -152,7 +159,6 @@ class _BalancePageState extends State<BalancePage> {
                               }
                             },
                           ),
-
                         ],
                       ),
                       const SizedBox(height: 32),
@@ -166,18 +172,20 @@ class _BalancePageState extends State<BalancePage> {
                           ),
                         ),
                       ] else
-                        const CircularProgressIndicator(),
+                        CircularProgressIndicator(
+                          color: Theme.of(context).primaryColor,
+                        ),
                       const SizedBox(height: 32),
                       Text(
                         'JEVON IVANDER JUANDY',
                         style: GoogleFonts.inter(
                           fontSize: 16,
-                          color: Colors.black,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const Divider(
-                        color: Colors.grey,
+                      Divider(
+                        color: Theme.of(context).dividerColor,
                         thickness: 5,
                       ),
                     ],
@@ -190,7 +198,11 @@ class _BalancePageState extends State<BalancePage> {
               FutureBuilder<Map<String, double>>(
                 future: getExpensesByCategory(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const CircularProgressIndicator();
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator(
+                    color: Theme.of(context).primaryColor,
+                  );
+                  }
 
                   final data = snapshot.data!;
                   return ExpenseChart(data: data); 
@@ -201,12 +213,12 @@ class _BalancePageState extends State<BalancePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Detail History",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).textTheme.headlineMedium?.color,
                     ),
                   ),
                   TextButton(
@@ -223,10 +235,10 @@ class _BalancePageState extends State<BalancePage> {
                       minimumSize: Size.zero,
                       alignment: Alignment.centerRight,
                     ),
-                    child: const Text(
+                    child: Text(
                       "See All",
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -238,10 +250,14 @@ class _BalancePageState extends State<BalancePage> {
                 future: getHighestExpenses(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return CircularProgressIndicator(
+                      color: Theme.of(context).primaryColor,
+                    );
                   }
                   if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
+                    return Text('Error: ${snapshot.error}',
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    );
                   }
 
                   final expenses = snapshot.data ?? [];
@@ -258,8 +274,8 @@ class _BalancePageState extends State<BalancePage> {
                         contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                         title: Text(
                           capitalize(expense['category']),
-                          style: const TextStyle(
-                            color: Colors.black,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.titleLarge?.color,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
@@ -269,16 +285,16 @@ class _BalancePageState extends State<BalancePage> {
                           children: [
                             Text(
                               expense['name'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.black87,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                               ),
                             ),
                             Text(
                               DateFormat('d MMM yyyy').format(expense['date'].toDate()),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
-                                color: Color(0xFF8E8E93),
+                                color: isDark ?  const Color(0xFF8E8E93) :  const Color(0xFF8E8E93),
                               ),
                             ),
                           ],
