@@ -265,7 +265,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Expense updated successfully!"),
+                        content: Text(
+                          "Expense updated successfully!",
+                          style: TextStyle(color: Colors.white),
+                        ),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -274,7 +277,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text("Failed to update expense: $e"),
+                        content: Text(
+                          "Failed to update expense: $e",
+                          style: const TextStyle(color: Colors.white),
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -293,7 +299,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
     if (documentId == null || documentId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Invalid document ID"),
+          content: Text(
+            "Invalid document ID",
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -328,7 +337,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Expense deleted successfully!"),
+              content: Text(
+                "Expense deleted successfully!",
+                style: TextStyle(color: Colors.white),
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -337,7 +349,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Failed to delete expense: $e"),
+              content: Text(
+                "Failed to delete expense: $e",
+                style: const TextStyle(color: Colors.white),
+              ),
               backgroundColor: Colors.red,
             ),
           );
