@@ -84,37 +84,79 @@ class _PaymentScreenState extends State<PaymentScreen> {
     await _loadBalance();
     _amountController.clear();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(12),
+    showPaymentSuccessDialog(amount);
+  }
+
+  void showPaymentSuccessDialog(double amount) {
+    final DateTime now = DateTime.now();
+    final String formattedDate = "${now.day}/${now.month}/${now.year}";
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
-          child: Row(
+          title: Row(
             children: [
-              const Icon(Icons.check_circle_outline, color: Colors.white),
-              const SizedBox(width: 8),
+              const Icon(Icons.check_circle, color: Colors.green, size: 30),
+              const SizedBox(width: 10),
               Text(
-                'Success to pay installment',
+                'Payment Successful!',
                 style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        margin: const EdgeInsets.only(
-          bottom: 20,
-          right: 20,
-          left: 20,
-        ),
-      ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Payment Amount:',
+                style: GoogleFonts.inter(fontSize: 16),
+              ),
+              Text(
+                CurrencyFormatter.formatCurrency(amount),
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Payment Date:',
+                style: GoogleFonts.inter(fontSize: 16),
+              ),
+              Text(
+                formattedDate,
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
