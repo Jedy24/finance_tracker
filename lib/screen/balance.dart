@@ -114,48 +114,90 @@ class _BalancePageState extends State<BalancePage> {
                               double? newBalance = await showDialog<double>(
                                 context: context,
                                 builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text("Edit Balance"),
-                                    content: TextField(
-                                      controller: controller,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        prefixText: 'Rp. ',
+                                  return Center(
+                                    child: Card(
+                                      elevation: 8,
+                                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                      onChanged: (value) {
-                                        String rawValue = value.replaceAll(RegExp(r'[^0-9]'), '');
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Edit Balance",
+                                              style: GoogleFonts.inter(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            TextField(
+                                              controller: controller,
+                                              keyboardType: TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                prefixText: 'Rp. ',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                              onChanged: (value) {
+                                                String rawValue = value.replaceAll(RegExp(r'[^0-9]'), '');
 
-                                        if (rawValue.isNotEmpty) {
-                                          double parsedValue = double.tryParse(rawValue) ?? 0;
-                                          String formattedValue = CurrencyFormatter.formatCurrency(parsedValue).replaceAll('Rp. ', '');
+                                                if (rawValue.isNotEmpty) {
+                                                  double parsedValue = double.tryParse(rawValue) ?? 0;
+                                                  String formattedValue = CurrencyFormatter.formatCurrency(parsedValue).replaceAll('Rp. ', '');
 
-                                          controller.value = TextEditingValue(
-                                            text: formattedValue,
-                                            selection: TextSelection.collapsed(offset: formattedValue.length),
-                                          );
-                                        }
-                                      },
+                                                  controller.value = TextEditingValue(
+                                                    text: formattedValue,
+                                                    selection: TextSelection.collapsed(offset: formattedValue.length),
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    final rawText = controller.text.replaceAll(RegExp(r'[Rp.\s,]'), '').trim();
+                                                    final newValue = double.tryParse(rawText) ?? 0;
+                                                    Navigator.pop(context, newValue);
+                                                  },
+                                                  child: const Text("Save"),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text("Cancel"),
-                                        onPressed: () => Navigator.pop(context),
-                                      ),
-                                      TextButton(
-                                        child: const Text("Save"),
-                                        onPressed: () {
-                                          final rawText = controller.text.replaceAll(RegExp(r'[Rp.\s,]'), '').trim();
-                                          final newValue = double.tryParse(rawText) ?? 0;
-                                          Navigator.pop(context, newValue);
-                                        },
-                                      ),
-                                    ],
                                   );
                                 },
                               );
                               if (newBalance != null) {
-                                await MonthlyBalanceService.updateMonthlyBalance(newBalance);
-                                await _loadBalance(); 
+                                final success = await MonthlyBalanceService.updateMonthlyBalance(newBalance);
+                                await _loadBalance();
+
+                                final snackBar = SnackBar(
+                                  content: Text(
+                                    success
+                                        ? 'Balance updated successfully!'
+                                        : 'Failed to update balance. Please try again.',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold, 
+                                    ),
+                                  ),
+                                  backgroundColor: success ? Colors.green : Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
                               }
                             },
                           ),

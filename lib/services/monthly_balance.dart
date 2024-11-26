@@ -59,13 +59,15 @@ class MonthlyBalanceService {
   }
 
   // Update budget bulanan
-  static Future<void> updateMonthlyBalance(double newBalance) async {
+  static Future<bool> updateMonthlyBalance(double newBalance) async {
     try {
       await _monthlyCollection.doc('thupwoBKWSiPrBL7YQ7K').set({
-        'balance': newBalance 
+        'balance': newBalance,
       });
+      return true;
     } catch (e) {
-      rethrow;
+      print('Error updating balance: $e');
+      return false; 
     }
   }
   
