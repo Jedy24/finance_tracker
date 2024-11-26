@@ -37,7 +37,8 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
           "All Expenses",
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold, 
+            fontWeight: FontWeight.bold,
+            fontSize: 28, 
           ),
         ),
         flexibleSpace: Container(
