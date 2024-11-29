@@ -49,14 +49,35 @@ class EditCategoryService {
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () async {
-                                  await customCategories.deleteCategory(category);
-                                  onCategoryUpdated();
-                                  _showSnackBar('Category deleted successfully');
-                                  setState(() {});
-                                },
-                              ),
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () async {
+                                    bool? confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Confirm Delete'),
+                                          content: const Text('Are you sure you want to delete this category?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(true),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    if (confirmed == true) {
+                                      await customCategories.deleteCategory(category);
+                                      onCategoryUpdated();
+                                      _showSnackBar('Category deleted successfully');
+                                      setState(() {});
+                                    }
+                                  },
+                                ),
                             ],
                           ),
                         );
