@@ -3,6 +3,7 @@ import 'package:finance_tracker/services/installment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_tracker/services/expense_service.dart';
 import 'package:finance_tracker/components/currency_formatter.dart';
+import 'package:finance_tracker/components/custom_categories.dart';
 import 'package:intl/intl.dart';
 
 class AllExpensesPage extends StatefulWidget {
@@ -16,17 +17,129 @@ class AllExpensesPage extends StatefulWidget {
 
 class _AllExpensesPageState extends State<AllExpensesPage> {
   late Future<Map<String, Map<String, List<Map<String, dynamic>>>>> _futureGroupedExpenses;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _selectedCategory;
+  final CustomCategories _customCategories = CustomCategories();
 
   @override
   void initState() {
     super.initState();
+    _customCategories.loadCategories();
     _fetchGroupedExpenses();
   }
 
   Future<void> _fetchGroupedExpenses() async {
     setState(() {
-      _futureGroupedExpenses = ExpenseService.fetchMonthlyExpensesGrouped(widget.month);
+      _futureGroupedExpenses = ExpenseService.fetchMonthlyExpensesGrouped(
+        widget.month,
+        startDate: _startDate,
+        endDate: _endDate,
+        category: _selectedCategory,
+      );
     });
+  }
+
+  Widget _buildFilterButton() {
+    return IconButton(
+      icon: const Icon(Icons.filter_list, color: Colors.white),
+      onPressed: _showFilterDialog,
+    );
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        DateTime? tempStartDate = _startDate;
+        DateTime? tempEndDate = _endDate;
+        String? tempSelectedCategory = _selectedCategory;
+
+        return AlertDialog(
+          title: const Text("Filter Expenses"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: tempSelectedCategory,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: "Category"),
+                hint: const Text("Select Category"),
+                items: _customCategories.categories
+                    .map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  tempSelectedCategory = value;
+                },
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(
+                  text: tempStartDate != null
+                      ? DateFormat('yyyy-MM-dd').format(tempStartDate)
+                      : "",
+                ),
+                decoration: const InputDecoration(labelText: "Start Date"),
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: tempStartDate ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (date != null) {
+                    tempStartDate = date;
+                  }
+                },
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(
+                  text: tempEndDate != null
+                      ? DateFormat('yyyy-MM-dd').format(tempEndDate)
+                      : "",
+                ),
+                decoration: const InputDecoration(labelText: "End Date"),
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: tempEndDate ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (date != null) {
+                    tempEndDate = date;
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _selectedCategory = tempSelectedCategory;
+                  _startDate = tempStartDate;
+                  _endDate = tempEndDate;
+                });
+                Navigator.pop(context);
+                _fetchGroupedExpenses();
+              },
+              child: const Text("Apply"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -38,123 +151,130 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 28, 
+            fontSize: 28,
           ),
         ),
+        actions: [_buildFilterButton()],
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF12B0F8), Color(0xFF007AFF)], 
+              colors: [Color(0xFF12B0F8), Color(0xFF007AFF)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
         ),
       ),
-      body: FutureBuilder<Map<String, Map<String, List<Map<String, dynamic>>>>>(
-        future: _futureGroupedExpenses,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = snapshot.data!;
-          return ListView(
-            children: data.entries.map((categoryEntry) {
-              final category = categoryEntry.key;
-              final dateGroups = categoryEntry.value;
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder<Map<String, Map<String, List<Map<String, dynamic>>>>>(
+              future: _futureGroupedExpenses,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final data = snapshot.data!;
+                return ListView(
+                  children: data.entries.map((categoryEntry) {
+                    final category = categoryEntry.key;
+                    final dateGroups = categoryEntry.value;
 
-              double totalAmount = dateGroups.values
-                  .expand((expenses) => expenses)
-                  .map((expense) => expense['amount'] as double)
-                  .reduce((a, b) => a + b);
-              if (totalAmount <= 0) return const SizedBox.shrink();
+                    double totalAmount = dateGroups.values
+                        .expand((expenses) => expenses)
+                        .map((expense) => expense['amount'] as double)
+                        .reduce((a, b) => a + b);
+                    if (totalAmount <= 0) return const SizedBox.shrink();
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          category.toUpperCase(),
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          CurrencyFormatter.formatCurrency(totalAmount),
-                          style: const TextStyle(
-                            fontSize: 16, 
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...dateGroups.entries.map((dateEntry) {
-                    final date = dateEntry.key;
-                    final expenses = dateEntry.value;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ...expenses.map((expense) {
-                          return Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          '${expense['name']} - $date',
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                category.toUpperCase(),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                CurrencyFormatter.formatCurrency(totalAmount),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ...dateGroups.entries.map((dateEntry) {
+                          final date = dateEntry.key;
+                          final expenses = dateEntry.value;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ...expenses.map((expense) {
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                '${expense['name']} - $date',
+                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                                  onPressed: () {
+                                                    _showEditDialog(context, expense);
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                                  onPressed: () {
+                                                    _deleteExpense(expense['id']);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.edit, color: Colors.blue),
-                                            onPressed: () {
-                                              _showEditDialog(context, expense);
-                                            },
+                                        Text(
+                                          CurrencyFormatter.formatCurrency(expense['amount']),
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
-                                            onPressed: () {
-                                              _deleteExpense(expense['id']);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    CurrencyFormatter.formatCurrency(expense['amount']),
-                                    style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
+                                );
+                              }).toList(),
+                              const Divider(),
+                            ],
                           );
                         }).toList(),
-                        const Divider(),
                       ],
                     );
                   }).toList(),
-                ],
-              );
-            }).toList(),
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

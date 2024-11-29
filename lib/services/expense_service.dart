@@ -79,48 +79,62 @@ Future<Map<String, double>> getExpensesByCategory() async {
 }
 
 class ExpenseService {
-  static Future<Map<String, Map<String, List<Map<String, dynamic>>>>> fetchMonthlyExpensesGrouped(int month) async {
+  static Future<Map<String, Map<String, List<Map<String, dynamic>>>>> fetchMonthlyExpensesGrouped(
+      int month, {
+      DateTime? startDate,
+      DateTime? endDate,
+      String? category,
+    }) async {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, month, 1);
     final endOfMonth = DateTime(now.year, month + 1, 0);
 
-    final querySnapshot = await FirebaseFirestore.instance
-      .collection('expenses')
-      .where('date', isGreaterThanOrEqualTo: startOfMonth)
-      .where('date', isLessThanOrEqualTo: endOfMonth)
-      .orderBy('date')
-      .get();
+    Query query = FirebaseFirestore.instance.collection('expenses');
 
-    Map<String, Map<String, List<Map<String, dynamic>>>> groupedExpenses = {};
-
-    for (var doc in querySnapshot.docs) {
-      final data = doc.data();
-      final category = data['category'];
-      final date = (data['date'] as Timestamp).toDate();
-      final formattedDate = DateFormat('d MMM yyyy').format(date);
-
-      final expenseEntry = {
-        'id': doc.id, 
-        'name': data['name'],
-        'amount': data['amount'],
-        'date': date,
-      };
-
-      // Inisialisasi kategori jika tidak ada
-      if (!groupedExpenses.containsKey(category)) {
-        groupedExpenses[category] = {};
-      }
-
-      // Inisialisasi date group dalam kategori jika tidak ada
-      if (!groupedExpenses[category]!.containsKey(formattedDate)) {
-        groupedExpenses[category]![formattedDate] = [];
-      }
-
-      // Menambahkan expense kedalam kategori-date group
-      groupedExpenses[category]![formattedDate]!.add(expenseEntry);
+    // Filter berdasarkan bulan
+    if (startDate == null && endDate == null) {
+      query = query.where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth));
+      query = query.where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth));
     }
 
-    return groupedExpenses;
+    // Filter berdasarkan rentang waktu
+    if (startDate != null) {
+      query = query.where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+    }
+    if (endDate != null) {
+      query = query.where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
+    }
+
+    // Filter berdasarkan kategori
+    if (category != null && category.isNotEmpty) {
+      query = query.where('category', isEqualTo: category);
+    }
+
+    try {
+      final querySnapshot = await query.orderBy('date').get();
+      Map<String, Map<String, List<Map<String, dynamic>>>> groupedExpenses = {};
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>? ?? {};
+        final category = data['category'] ?? 'Uncategorized';
+        final date = (data['date'] as Timestamp?)?.toDate() ?? DateTime.now();
+        final formattedDate = DateFormat('d MMM yyyy').format(date);
+
+        final expenseEntry = {
+          'id': doc.id,
+          'name': data['name'] ?? 'Unknown',
+          'amount': (data['amount'] as num?)?.toDouble() ?? 0.0,
+          'date': date,
+        };
+
+        groupedExpenses.putIfAbsent(category, () => {});
+        groupedExpenses[category]!.putIfAbsent(formattedDate, () => []);
+        groupedExpenses[category]![formattedDate]!.add(expenseEntry);
+      }
+      return groupedExpenses;
+    } catch (e) {
+      throw Exception("Error fetching data: $e");
+    }
   }
 
   static Future<void> updateExpense(String documentId, Map<String, dynamic> updatedData) async {
