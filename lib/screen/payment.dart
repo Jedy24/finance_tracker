@@ -94,67 +94,72 @@ class _PaymentScreenState extends State<PaymentScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 30),
-              const SizedBox(width: 10),
-              Text(
-                'Payment Successful!',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Payment Amount:',
-                style: GoogleFonts.inter(fontSize: 16),
-              ),
-              Text(
-                CurrencyFormatter.formatCurrency(amount),
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Payment Date:',
-                style: GoogleFonts.inter(fontSize: 16),
-              ),
-              Text(
-                formattedDate,
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'OK',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
+        return Material(
+          color: Colors.transparent,
+          elevation: 10, 
+          shadowColor: Colors.grey.withOpacity(0.5),
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
             ),
-          ],
+            title: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 30),
+                const SizedBox(width: 10),
+                Text(
+                  'Payment Successful!',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Payment Amount:',
+                  style: GoogleFonts.inter(fontSize: 16),
+                ),
+                Text(
+                  CurrencyFormatter.formatCurrency(amount),
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Payment Date:',
+                  style: GoogleFonts.inter(fontSize: 16),
+                ),
+                Text(
+                  formattedDate,
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
