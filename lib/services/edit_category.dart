@@ -91,6 +91,14 @@ class EditCategoryService {
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Close'),
                 ),
+
+                // TextButton(
+                //   onPressed: () => Navigator.of(context).pop(),
+                //   style: TextButton.styleFrom(
+                //     foregroundColor: Theme.of(context).primaryColor, // Teks berwarna sesuai primaryColor tema
+                //   ),
+                //   child: const Text('Cancel'),
+                // ),
               ],
             );
           },
