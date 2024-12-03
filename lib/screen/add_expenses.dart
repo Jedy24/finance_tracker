@@ -180,7 +180,7 @@ class _AddExpensesScreenState extends State<AddExpensesScreen> {
                                             color: theme.textTheme.bodyLarge?.color
                                           )
                                         ),
-                                        const SizedBox(height: 8),
+                                        const SizedBox(height: 4),
                                         GestureDetector(
                                           onTap: () {
                                             showDialog(
