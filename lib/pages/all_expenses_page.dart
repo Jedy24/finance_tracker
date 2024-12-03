@@ -22,11 +22,27 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
   String? _selectedCategory;
   final CustomCategories _customCategories = CustomCategories();
 
+  late TextEditingController _startDateController;
+  late TextEditingController _endDateController;
+
   @override
   void initState() {
     super.initState();
     _customCategories.loadCategories();
+    _startDateController = TextEditingController(
+      text: _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : "",
+    );
+    _endDateController = TextEditingController(
+      text: _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : "",
+    );
     _fetchGroupedExpenses();
+  }
+
+  @override
+  void dispose() {
+    _startDateController.dispose();
+    _endDateController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchGroupedExpenses() async {
@@ -78,11 +94,7 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
               const SizedBox(height: 10.0),
               TextField(
                 readOnly: true,
-                controller: TextEditingController(
-                  text: tempStartDate != null
-                      ? DateFormat('yyyy-MM-dd').format(tempStartDate)
-                      : "",
-                ),
+                controller: _startDateController,
                 decoration: const InputDecoration(labelText: "Start Date"),
                 onTap: () async {
                   final date = await showDatePicker(
@@ -92,18 +104,17 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
                     lastDate: DateTime(2101),
                   );
                   if (date != null) {
-                    tempStartDate = date;
+                    setState(() {
+                      tempStartDate = date;
+                      _startDateController.text = DateFormat('yyyy-MM-dd').format(date);
+                    });
                   }
                 },
               ),
               const SizedBox(height: 10.0),
               TextField(
                 readOnly: true,
-                controller: TextEditingController(
-                  text: tempEndDate != null
-                      ? DateFormat('yyyy-MM-dd').format(tempEndDate)
-                      : "",
-                ),
+                controller: _endDateController,
                 decoration: const InputDecoration(labelText: "End Date"),
                 onTap: () async {
                   final date = await showDatePicker(
@@ -113,7 +124,10 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
                     lastDate: DateTime(2101),
                   );
                   if (date != null) {
-                    tempEndDate = date;
+                    setState(() {
+                      tempEndDate = date;
+                      _endDateController.text = DateFormat('yyyy-MM-dd').format(date);
+                    });
                   }
                 },
               ),
@@ -135,6 +149,20 @@ class _AllExpensesPageState extends State<AllExpensesPage> {
                 _fetchGroupedExpenses();
               },
               child: const Text("Apply"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _selectedCategory = null;
+                  _startDate = null;
+                  _endDate = null;
+                  _startDateController.clear();
+                  _endDateController.clear();
+                });
+                Navigator.pop(context);
+                _fetchGroupedExpenses();
+              },
+              child: const Text("Reset"),
             ),
           ],
         );
