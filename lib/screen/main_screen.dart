@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dashboard.dart';
+import 'login.dart';
 import 'package:finance_tracker/components/custom_button.dart';
 
 class FinanceTrackerScreen extends StatelessWidget {
@@ -57,7 +57,7 @@ class FinanceTrackerScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DashboardScreen()),
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
                     );
                   },
                 ),
