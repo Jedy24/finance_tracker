@@ -55,6 +55,7 @@ flutter:
   assets:
   - assets/images/kingdom-payment.png
   - assets/images/visa.png
+  - assets/images/finance-logo.png
 
 # flutter_launcher_icons:
 #   image_path_android: "assets/images/finance-logo.png"
